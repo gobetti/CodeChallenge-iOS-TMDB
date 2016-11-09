@@ -6,19 +6,24 @@
 //
 
 import UIKit
+import RxSwift
 
-class ViewController: UIViewController {
-
+final class ViewController: UIViewController {
+    private lazy var tmdbModel = TMDBModel()
+    private let disposeBag = DisposeBag()
+    private var upcomingMovies: [Movie]?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        self.tmdbModel.upcomingMovies().subscribe { [unowned self] event in
+            switch event {
+            case let .success(movies):
+                self.upcomingMovies = movies
+                print("Received \(movies.count) movies")
+            case let .error(error):
+                print("Error: \(error)")
+            }
+            }.disposed(by: self.disposeBag)
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-
-
 }
-
