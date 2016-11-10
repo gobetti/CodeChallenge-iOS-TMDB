@@ -46,6 +46,7 @@ final class UpcomingMoviesViewController: UIViewController {
                 cell.releaseDateLabel.text = DateFormatter.localizedString(from: movie.releaseDate,
                                                                            dateStyle: .medium,
                                                                            timeStyle: .none)
+                cell.image = self.tmdbModel.image(width: 300, from: movie)
             }.disposed(by: self.disposeBag)
     }
 }
@@ -53,6 +54,11 @@ final class UpcomingMoviesViewController: UIViewController {
 private class UpcomingMoviesFlowLayout: UICollectionViewFlowLayout {
     override var itemSize: CGSize {
         get { return CGSize(width: UIScreen.main.bounds.width, height: 55) }
+        set {}
+    }
+    
+    override var minimumLineSpacing: CGFloat {
+        get { return 1 }
         set {}
     }
 }

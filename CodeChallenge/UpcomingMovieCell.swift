@@ -6,17 +6,65 @@
 //
 
 import UIKit
+import RxSwift
 
 final class UpcomingMovieCell: UICollectionViewCell {
-    // TODO: image
+    private let disposeBag = DisposeBag()
+    
+    var image: Single<UIImage?>? {
+        didSet {
+            guard let image = self.image else {
+                self.imageView.alpha = 0.0
+                self.imageView.image = nil
+                return
+            }
+            
+            image.subscribe { event in
+                switch event {
+                case let .success(image):
+                    assert(Thread.isMainThread)
+                    self.imageView.image = image
+                    self.imageView.alpha = 1.0
+                case let .error(error):
+                    print("Error fetching image: \(error)")
+                }
+                }.disposed(by: self.disposeBag)
+        }
+    }
+    
+    lazy var imageView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFill
+        view.alpha = 0.0
+        view.clipsToBounds = true
+        self.contentView.addSubview(view)
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
+            view.topAnchor.constraint(equalTo: self.contentView.topAnchor),
+            view.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor)
+            ])
+        
+        return view
+    }()
     
     lazy var titleLabel: UILabel = {
         let view = UILabel()
         view.backgroundColor = UIColor.clear
-        view.textAlignment = .left
+        view.textAlignment = .center
         view.font = UIFont.systemFont(ofSize: 18)
         view.textColor = UIColor.darkText
-        self.contentView.addSubview(view)
+        self.contentView.insertSubview(view, aboveSubview: self.imageView)
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.leadingAnchor.constraint(equalTo: self.releaseDateLabel.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: self.releaseDateLabel.trailingAnchor),
+            view.bottomAnchor.constraint(equalTo: self.releaseDateLabel.topAnchor, constant: 5)
+            ])
+        
         return view
     }()
     
@@ -26,14 +74,23 @@ final class UpcomingMovieCell: UICollectionViewCell {
         view.textAlignment = .right
         view.font = UIFont.systemFont(ofSize: 14)
         view.textColor = UIColor.lightGray
-        self.contentView.addSubview(view)
+        self.contentView.insertSubview(view, aboveSubview: self.imageView)
+        
+        view.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            view.leadingAnchor.constraint(equalTo: self.imageView.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: self.imageView.trailingAnchor),
+            view.bottomAnchor.constraint(equalTo: self.imageView.bottomAnchor)
+            ])
+        
         return view
     }()
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        let frame = contentView.bounds.insetBy(dx: 0, dy: 0)
-        self.titleLabel.frame = frame
-        self.releaseDateLabel.frame = frame
+    // MARK: - UICollectionViewCell overrides
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        self.releaseDateLabel.text = nil
+        self.image = nil
+        self.titleLabel.text = nil
     }
 }
