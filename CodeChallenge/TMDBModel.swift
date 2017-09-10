@@ -15,8 +15,19 @@ enum TMDBModelError: Error {
 }
 
 struct TMDBModel {
-    private let imageProvider = MoyaProvider<TMDBImage>()
-    private let moviesProvider = MoyaProvider<TMDB>()
+    typealias ImageProvider = MoyaProvider<TMDBImage>
+    typealias MoviesProvider = MoyaProvider<TMDB>
+    
+    private let imageProvider: ImageProvider
+    private let moviesProvider: MoviesProvider
+    
+    init(imageClosures: MoyaClosures<TMDBImage> = MoyaClosures<TMDBImage>(),
+         moviesClosures: MoyaClosures<TMDB> = MoyaClosures<TMDB>()) {
+        self.imageProvider = ImageProvider(endpointClosure: imageClosures.endpointClosure,
+                                           stubClosure: imageClosures.stubClosure)
+        self.moviesProvider = MoviesProvider(endpointClosure: moviesClosures.endpointClosure,
+                                             stubClosure: moviesClosures.stubClosure)
+    }
     
     func image(width: Int, from movie: Movie) -> Single<Image?> {
         guard movie.imagePath != nil else {
@@ -38,6 +49,17 @@ struct TMDBModel {
         return self.moviesProvider.rx
             .request(type)
             .map(to: [Movie].self, keyPath: "results")
+    }
+}
+
+struct MoyaClosures<T: TargetType> {
+    let endpointClosure: MoyaProvider<T>.EndpointClosure
+    let stubClosure: MoyaProvider<T>.StubClosure
+    
+    init(endpointClosure: @escaping MoyaProvider<T>.EndpointClosure = MoyaProvider<T>.defaultEndpointMapping,
+         stubClosure: @escaping MoyaProvider<T>.StubClosure = MoyaProvider<T>.neverStub) {
+        self.endpointClosure = endpointClosure
+        self.stubClosure = stubClosure
     }
 }
 

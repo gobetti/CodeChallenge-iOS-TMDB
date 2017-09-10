@@ -17,7 +17,7 @@ struct Movie: Mappable {
     let genreIDs: [Int]
     let releaseDate: Date
     
-    private static let dateFormatter: DateFormatter = {
+    static let dateFormatter: DateFormatter = {
         $0.dateFormat = "yyyy-MM-dd"
         return $0
     }(DateFormatter())
