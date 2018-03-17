@@ -14,8 +14,7 @@ final class UpcomingMovieCell: UICollectionViewCell {
     var image: Single<UIImage?>? {
         didSet {
             guard let image = self.image else {
-                self.imageView.alpha = 0.0
-                self.imageView.image = nil
+                self.imageView.setImageAnimated(nil)
                 return
             }
             
@@ -23,8 +22,7 @@ final class UpcomingMovieCell: UICollectionViewCell {
                 switch event {
                 case let .success(image):
                     assert(Thread.isMainThread)
-                    self.imageView.image = image
-                    self.imageView.alpha = 1.0
+                    self.imageView.setImageAnimated(image)
                 case let .error(error):
                     print("Error fetching image: \(error)")
                 }
@@ -35,7 +33,6 @@ final class UpcomingMovieCell: UICollectionViewCell {
     lazy var imageView: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFill
-        view.alpha = 0.0
         view.clipsToBounds = true
         self.contentView.addSubview(view)
         
