@@ -7,7 +7,6 @@
 
 import XCTest
 @testable import CodeChallenge
-import Mapper
 import Moya
 import RxSwift
 
@@ -94,8 +93,9 @@ class CodeChallengeTests: XCTestCase {
     
     func testImage() {
         let movieJSONString = "{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"poster_path\":\"\\/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg\",\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg\",\"adult\":false,\"release_date\":\"2017-08-17\"}"
-        let movieJSON = try! JSONSerialization.jsonObject(with: movieJSONString.data(using: .utf8)!, options: [])
-        let movie = try! Movie(map: Mapper(JSON: movieJSON as! NSDictionary))
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .formatted(Movie.dateFormatter)
+        let movie = try! decoder.decode(Movie.self, from: movieJSONString.data(using: .utf8)!)
         
         let thisExpectation = expectation(description: "received stub image")
         let imageWidth = 300

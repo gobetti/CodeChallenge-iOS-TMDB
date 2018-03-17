@@ -5,9 +5,7 @@
 //  Created by Marcelo Gobetti on 10/31/16.
 //
 
-import Mapper
 import Moya
-import Moya_ModelMapper
 import RxSwift
 
 enum TMDBModelError: Error {
@@ -48,7 +46,11 @@ struct TMDBModel {
     private func requestMovies(_ type: TMDB) -> Single<[Movie]> {
         return self.moviesProvider.rx
             .request(type)
-            .map(to: [Movie].self, keyPath: "results")
+            .map { response -> TMDBResults in
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .formatted(Movie.dateFormatter)
+                return try decoder.decode(TMDBResults.self, from: response.data)
+            }.map { $0.movies }
     }
 }
 
@@ -140,5 +142,13 @@ extension TMDBImage: TargetType {
     
     public var headers: [String : String]? {
         return nil
+    }
+}
+
+private struct TMDBResults: Decodable {
+    let movies: [Movie]
+    
+    enum CodingKeys: String, CodingKey {
+        case movies = "results"
     }
 }

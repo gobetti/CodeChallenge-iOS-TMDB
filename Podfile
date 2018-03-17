@@ -3,9 +3,7 @@ platform :ios, '9.0'
 use_frameworks!
 
 def shared_pods
-    pod 'ModelMapper',              '~> 6.0'
     pod 'Moya/RxSwift',             '~> 9.0'
-    pod 'Moya-ModelMapper/RxSwift', '~> 5.0'
     pod 'RxCocoa',                  '~> 3.0'
 end
 
