@@ -73,7 +73,7 @@ class CodeChallengeTests: XCTestCase {
         let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
             return Endpoint(url: target.baseURL.absoluteString, sampleResponseClosure: {
                 return .networkError(TestError())
-            }, task: target.task)
+            }, method: .get, task: target.task, httpHeaderFields: [:])
         }
         
         self.runTestStubbing(endpointClosure: endpointClosure,
@@ -142,9 +142,11 @@ class CodeChallengeTests: XCTestCase {
         }
     }
     
-    private func customEndpoint<T: TargetType>(for target: T, stubbedResponse: String) -> Endpoint<T> {
+    private func customEndpoint<T: TargetType>(for target: T, stubbedResponse: String) -> Endpoint {
         return Endpoint(url: target.baseURL.absoluteString,
                         sampleResponseClosure: { .networkResponse(200, stubbedResponse.data(using: .utf8)!) },
-                        task: target.task)
+                        method: .get,
+                        task: target.task,
+                        httpHeaderFields: [:])
     }
 }

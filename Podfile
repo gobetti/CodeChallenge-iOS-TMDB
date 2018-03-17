@@ -3,8 +3,8 @@ platform :ios, '9.0'
 use_frameworks!
 
 def shared_pods
-    pod 'Moya/RxSwift',             '~> 9.0'
-    pod 'RxCocoa',                  '~> 3.0'
+    pod 'Moya/RxSwift',             '~> 11.0'
+    pod 'RxCocoa',                  '~> 4.0'
 end
 
 target 'CodeChallenge' do
@@ -13,12 +13,4 @@ end
 
 target 'CodeChallengeTests' do
     shared_pods
-end
-
-post_install do |installer|
-    installer.pods_project.targets.each do |target|
-        target.build_configurations.each do |config|
-            config.build_settings['SWIFT_VERSION'] = '3.2'
-        end
-    end
 end
