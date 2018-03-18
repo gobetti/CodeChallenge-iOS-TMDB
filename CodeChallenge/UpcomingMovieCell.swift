@@ -9,7 +9,7 @@ import UIKit
 import RxSwift
 
 final class UpcomingMovieCell: UICollectionViewCell {
-    private let disposeBag = DisposeBag()
+    private var disposeBag = DisposeBag()
     
     var image: Single<UIImage?>? {
         didSet {
@@ -89,6 +89,7 @@ final class UpcomingMovieCell: UICollectionViewCell {
     // MARK: - UICollectionViewCell overrides
     override func prepareForReuse() {
         super.prepareForReuse()
+        self.disposeBag = DisposeBag()
         self.releaseDateLabel.text = nil
         self.image = nil
         self.titleLabel.text = nil
