@@ -20,10 +20,12 @@ final class UpcomingMoviesViewController: UIViewController {
     // MARK: - UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationController?.hidesBarsOnSwipe = true
         self.view.backgroundColor = .white
         
         self.setupContent()
         self.setupMoviesFetcher()
+        self.setupMovieNavigator()
     }
     
     // MARK: - Private methods
@@ -58,6 +60,19 @@ final class UpcomingMoviesViewController: UIViewController {
                 if distance < 200 {
                     self.viewModel.fetchMoreMovies()
                 }
+            }.disposed(by: self.disposeBag)
+    }
+    
+    private func setupMovieNavigator() {
+        self.collectionView.rx.modelSelected(Movie.self)
+            .bind { [unowned self] selectedMovie in
+                guard let navigationController = self.navigationController else {
+                    print("Unable to push movie details - no navigation controller")
+                    return
+                }
+                
+                navigationController.pushViewController(MovieDetailsViewController(movie: selectedMovie),
+                                                        animated: true)
             }.disposed(by: self.disposeBag)
     }
 }
