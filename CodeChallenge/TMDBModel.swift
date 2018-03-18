@@ -37,9 +37,8 @@ struct TMDBModel {
             .mapImage()
     }
     
-    // TODO: add page parameter
-    func upcomingMovies() -> Single<[Movie]> {
-        return self.requestMovies(.upcomingMovies)
+    func upcomingMovies(page: Int = 1) -> Single<[Movie]> {
+        return self.requestMovies(.upcomingMovies(page: page))
     }
     
     // Maps into [Movie] the "results" part of the JSON returned by the API
@@ -66,7 +65,7 @@ struct MoyaClosures<T: TargetType> {
 }
 
 enum TMDB {
-    case upcomingMovies
+    case upcomingMovies(page: Int)
 }
 
 enum TMDBImage {
@@ -106,8 +105,11 @@ extension TMDB: TargetType {
     }
     
     private var parameters: [String: Any] {
-        // TODO: page
-        return ["api_key" : api_key]
+        let defaultParameters = ["api_key" : api_key]
+        switch self {
+        case .upcomingMovies(let page):
+            return defaultParameters.merging(["page": "\(page)"]) { (_, new) in new }
+        }
     }
 }
 
