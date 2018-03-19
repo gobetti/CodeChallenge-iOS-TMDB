@@ -27,12 +27,14 @@ final class MoviesListCell: UICollectionViewCell {
                     self.imageView.setImageAnimated(image)
                     
                     guard let image = image else { return }
-                    guard let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first else {
-                        print("Unable to extract color from image")
-                        return
+                    if let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first {
+                        self.titleLabel.attributedText = NSAttributedString(string: self.titleLabel.text ?? "",
+                                                                            attributes: [.backgroundColor: color])
                     }
-                    self.titleLabel.attributedText = NSAttributedString(string: self.titleLabel.text ?? "",
-                                                                        attributes: [.backgroundColor: color])
+                    if let color = self.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first {
+                        self.releaseDateLabel.attributedText = NSAttributedString(string: self.releaseDateLabel.text ?? "",
+                                                                                  attributes: [.backgroundColor: color])
+                    }
                 case let .error(error):
                     print("Error fetching image: \(error)")
                 }
