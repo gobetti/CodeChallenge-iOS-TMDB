@@ -10,6 +10,7 @@
 		3A0659461DCD0C2C00CDAE16 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A0659451DCD0C2C00CDAE16 /* Movie.swift */; };
 		3AA371D120674C7400FBB61C /* UICollectionView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA371D020674C7400FBB61C /* UICollectionView+Extensions.swift */; };
 		3AA371DA2067EB7400FBB61C /* CodeChallengeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA371D92067EB7400FBB61C /* CodeChallengeTests.swift */; };
+		3AA371EE2068014B00FBB61C /* ColorCube.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AA371EB2068012500FBB61C /* ColorCube.framework */; };
 		3AA371F72068042400FBB61C /* MovieDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA371F62068042400FBB61C /* MovieDetailsViewController.swift */; };
 		3AA371FE2068494600FBB61C /* poster.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3AA371FD2068494600FBB61C /* poster.jpg */; };
 		3AA37215206888CC00FBB61C /* search_1.json in Resources */ = {isa = PBXBuildFile; fileRef = 3AA37212206888CC00FBB61C /* search_1.json */; };
@@ -37,6 +38,20 @@
 			remoteGlobalIDString = 3ACB49EB1DC2298D00C873DB;
 			remoteInfo = CodeChallenge;
 		};
+		3AA371EA2068012500FBB61C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3AA371E52068012500FBB61C /* ColorCube.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DD7A7C2F1E199F2700579A8E;
+			remoteInfo = ColorCube;
+		};
+		3AA371EC2068012500FBB61C /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3AA371E52068012500FBB61C /* ColorCube.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = DD7A7C5B1E19A04A00579A8E;
+			remoteInfo = "ColorCube-macOS";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +62,7 @@
 		3AA371D72067EB7400FBB61C /* CodeChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodeChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AA371D92067EB7400FBB61C /* CodeChallengeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeChallengeTests.swift; sourceTree = "<group>"; };
 		3AA371DB2067EB7400FBB61C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3AA371E52068012500FBB61C /* ColorCube.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ColorCube.xcodeproj; path = Vendor/ColorCube/Framework/ColorCube/ColorCube.xcodeproj; sourceTree = "<group>"; };
 		3AA371F62068042400FBB61C /* MovieDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovieDetailsViewController.swift; sourceTree = "<group>"; };
 		3AA371FD2068494600FBB61C /* poster.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = poster.jpg; sourceTree = "<group>"; };
 		3AA37212206888CC00FBB61C /* search_1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = search_1.json; sourceTree = "<group>"; };
@@ -83,6 +99,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AA371EE2068014B00FBB61C /* ColorCube.framework in Frameworks */,
 				74F8FF13BE2B62EC9BF7DB5E /* Pods_CodeChallenge.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -97,6 +114,15 @@
 				3AA371DB2067EB7400FBB61C /* Info.plist */,
 			);
 			path = CodeChallengeTests;
+			sourceTree = "<group>";
+		};
+		3AA371E62068012500FBB61C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3AA371EB2068012500FBB61C /* ColorCube.framework */,
+				3AA371ED2068012500FBB61C /* ColorCube.framework */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		3AA371F12068029600FBB61C /* Modules */ = {
@@ -128,6 +154,7 @@
 		3ACB49E31DC2298D00C873DB = {
 			isa = PBXGroup;
 			children = (
+				3AA371E52068012500FBB61C /* ColorCube.xcodeproj */,
 				3ACB49EE1DC2298D00C873DB /* CodeChallenge */,
 				3AA371D82067EB7400FBB61C /* CodeChallengeTests */,
 				3ACB49ED1DC2298D00C873DB /* Products */,
@@ -290,6 +317,12 @@
 			mainGroup = 3ACB49E31DC2298D00C873DB;
 			productRefGroup = 3ACB49ED1DC2298D00C873DB /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3AA371E62068012500FBB61C /* Products */;
+					ProjectRef = 3AA371E52068012500FBB61C /* ColorCube.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				3ACB49EB1DC2298D00C873DB /* CodeChallenge */,
@@ -297,6 +330,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3AA371EB2068012500FBB61C /* ColorCube.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ColorCube.framework;
+			remoteRef = 3AA371EA2068012500FBB61C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3AA371ED2068012500FBB61C /* ColorCube.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = ColorCube.framework;
+			remoteRef = 3AA371EC2068012500FBB61C /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3AA371D52067EB7400FBB61C /* Resources */ = {

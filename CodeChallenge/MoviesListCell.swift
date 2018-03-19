@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import ColorCube
 import RxSwift
 
 final class MoviesListCell: UICollectionViewCell {
     private var disposeBag = DisposeBag()
+    private let colorCube = CCColorCube()
     
     var image: Single<UIImage?>? {
         didSet {
@@ -23,6 +25,14 @@ final class MoviesListCell: UICollectionViewCell {
                 case let .success(image):
                     assert(Thread.isMainThread)
                     self.imageView.setImageAnimated(image)
+                    
+                    guard let image = image else { return }
+                    guard let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first else {
+                        print("Unable to extract color from image")
+                        return
+                    }
+                    self.titleLabel.attributedText = NSAttributedString(string: self.titleLabel.text ?? "",
+                                                                        attributes: [.backgroundColor: color])
                 case let .error(error):
                     print("Error fetching image: \(error)")
                 }
@@ -49,17 +59,16 @@ final class MoviesListCell: UICollectionViewCell {
     
     lazy var titleLabel: UILabel = {
         let view = UILabel()
-        view.backgroundColor = UIColor.clear
-        view.textAlignment = .center
-        view.font = UIFont.systemFont(ofSize: 18)
-        view.textColor = UIColor.darkText
+        view.backgroundColor = .clear
+        view.font = UIFont.boldSystemFont(ofSize: 24)
+        view.textColor = .darkText
         self.contentView.insertSubview(view, aboveSubview: self.imageView)
         
         view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            view.leadingAnchor.constraint(equalTo: self.releaseDateLabel.leadingAnchor),
-            view.trailingAnchor.constraint(equalTo: self.releaseDateLabel.trailingAnchor),
-            view.bottomAnchor.constraint(equalTo: self.releaseDateLabel.topAnchor, constant: 5)
+            view.leadingAnchor.constraint(equalTo: self.imageView.leadingAnchor, constant: 5),
+            view.trailingAnchor.constraint(equalTo: self.releaseDateLabel.leadingAnchor, constant: -5),
+            view.centerYAnchor.constraint(equalTo: self.imageView.centerYAnchor)
             ])
         
         return view
@@ -75,7 +84,6 @@ final class MoviesListCell: UICollectionViewCell {
         
         view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            view.leadingAnchor.constraint(equalTo: self.imageView.leadingAnchor),
             view.trailingAnchor.constraint(equalTo: self.imageView.trailingAnchor),
             view.bottomAnchor.constraint(equalTo: self.imageView.bottomAnchor)
             ])

@@ -1,0 +1,3 @@
+[submodule "Vendor/ColorCube"]
+	path = Vendor/ColorCube
+	url = https://github.com/pixelogik/ColorCube.git
