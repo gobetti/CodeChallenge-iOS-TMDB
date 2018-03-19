@@ -10,10 +10,8 @@ import RxCocoa
 import RxSwift
 
 final class UpcomingMoviesViewController: UIViewController {
-    private lazy var tmdbModel = TMDBModel()
     private let disposeBag = DisposeBag()
-    private let pageRequester = PublishSubject<Void>()
-    private let upcomingMovies = BehaviorRelay(value: [Movie]())
+    private let viewModel = UpcomingMoviesViewModel()
     
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
@@ -26,7 +24,7 @@ final class UpcomingMoviesViewController: UIViewController {
         
         self.setupContent()
         self.setupMoviesFetcher()
-        self.fetchMoreMovies()
+        self.viewModel.fetchMoreMovies()
     }
     
     // MARK: - Private methods
@@ -43,45 +41,25 @@ final class UpcomingMoviesViewController: UIViewController {
             self.collectionView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
             ])
         
-        self.upcomingMovies.asObservable()
-            .bind(to: self.collectionView.rx.items(cellType: UpcomingMovieCell.self)) { (_, movie, cell) in
+        self.viewModel.upcomingMoviesDriver
+            .drive(self.collectionView.rx.items(cellType: UpcomingMovieCell.self)) { (_, movie, cell) in
                 cell.titleLabel.text = movie.name
                 cell.releaseDateLabel.text = DateFormatter.localizedString(from: movie.releaseDate,
                                                                            dateStyle: .medium,
                                                                            timeStyle: .none)
-                cell.image = self.tmdbModel.image(width: 300, from: movie)
+                cell.image = self.viewModel.image(width: 300, from: movie)
             }.disposed(by: self.disposeBag)
     }
     
-    // MARK: - Fetch movies
     private func setupMoviesFetcher() {
         self.collectionView.rx.willEndDragging
             .bind { [unowned self] (_, targetContentOffset) in
                 let scrollView = self.collectionView
                 let distance = scrollView.contentSize.height - (targetContentOffset.pointee.y + scrollView.bounds.height)
                 if distance < 200 {
-                    self.fetchMoreMovies()
+                    self.viewModel.fetchMoreMovies()
                 }
             }.disposed(by: self.disposeBag)
-        
-        var fetchedPages = 0
-        var nextPage: Int {
-            return fetchedPages + 1
-        }
-        
-        self.pageRequester.flatMapFirst { [unowned self] in
-            self.tmdbModel.upcomingMovies(page: nextPage)
-                .do(onSuccess: { movies in
-                    fetchedPages += 1
-                    self.upcomingMovies.accept(self.upcomingMovies.value + movies)
-                }, onError: { error in
-                    print("Error: \(error)")
-                }).map { _ in }
-            }.subscribe().disposed(by: self.disposeBag)
-    }
-    
-    private func fetchMoreMovies() {
-        self.pageRequester.onNext(())
     }
 }
 
