@@ -10,22 +10,17 @@ import RxSwift
 
 /// Has to be a class otherwise "Closure cannot implicitly capture a mutating self parameter"
 final class UpcomingMoviesViewModel {
+    typealias MoviesCollection = [Movie]
+    
     private let disposeBag = DisposeBag()
     private let tmdbModel = TMDBModel()
     
     private let pageRequester = PublishSubject<Void>()
-    private let upcomingMoviesSubject = Variable<[Movie]>([])
-    private var upcomingMovies: [Movie] {
-        get {
-            return self.upcomingMoviesSubject.value
-        }
-        set {
-            self.upcomingMoviesSubject.value = newValue
-        }
-    }
+    private let upcomingMoviesSubject = PublishSubject<MoviesCollection>()
     
-    var upcomingMoviesDriver: Driver<[Movie]> {
-        return self.upcomingMoviesSubject.asDriver()
+    var upcomingMoviesDriver: Driver<MoviesCollection> {
+        return self.upcomingMoviesSubject
+            .asDriver(onErrorDriveWith: Driver.empty()) // assuming errors are handled before the subject
     }
     
     func fetchMoreMovies() {
@@ -44,12 +39,11 @@ final class UpcomingMoviesViewModel {
         
         self.pageRequester.startWith(()).flatMapFirst { [unowned self] in
             self.tmdbModel.upcomingMovies(page: nextPage)
-                .do(onSuccess: { movies in
-                    fetchedPages += 1
-                    self.upcomingMovies += movies
-                }, onError: { error in
-                    print("Error: \(error)")
-                }).map { _ in }
-            }.subscribe().disposed(by: self.disposeBag)
+                .do(onSuccess: { _ in fetchedPages += 1 },
+                    onError: { print("Error: \($0)") })
+            }.scan(MoviesCollection(), accumulator: { (accumulatedMovies, newMovies) -> MoviesCollection in
+                return accumulatedMovies + newMovies
+            }).bind(to: self.upcomingMoviesSubject)
+            .disposed(by: self.disposeBag)
     }
 }
