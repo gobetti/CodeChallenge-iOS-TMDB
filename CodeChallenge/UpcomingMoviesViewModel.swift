@@ -37,13 +37,14 @@ final class UpcomingMoviesViewModel {
             return fetchedPages + 1
         }
         
-        self.pageRequester.startWith(()).flatMapFirst { [unowned self] in
-            self.tmdbModel.upcomingMovies(page: nextPage)
-                .do(onSuccess: { _ in fetchedPages += 1 },
-                    onError: { print("Error: \($0)") })
-            }.scan(MoviesCollection(), accumulator: { (accumulatedMovies, newMovies) -> MoviesCollection in
+        self.pageRequester.startWith(())
+            .flatMapFirst { [unowned self] in
+                self.tmdbModel.upcomingMovies(page: nextPage)
+                    .do(onSuccess: { _ in fetchedPages += 1 },
+                        onError: { print("Error: \($0)") })
+            }.scan(MoviesCollection()) { (accumulatedMovies, newMovies) -> MoviesCollection in
                 return accumulatedMovies + newMovies
-            }).bind(to: self.upcomingMoviesSubject)
+            }.bind(to: self.upcomingMoviesSubject)
             .disposed(by: self.disposeBag)
     }
 }
