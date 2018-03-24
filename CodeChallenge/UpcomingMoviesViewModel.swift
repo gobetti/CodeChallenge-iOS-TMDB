@@ -42,7 +42,7 @@ final class UpcomingMoviesViewModel {
             return fetchedPages + 1
         }
         
-        self.pageRequester.flatMapFirst { [unowned self] in
+        self.pageRequester.startWith(()).flatMapFirst { [unowned self] in
             self.tmdbModel.upcomingMovies(page: nextPage)
                 .do(onSuccess: { movies in
                     fetchedPages += 1

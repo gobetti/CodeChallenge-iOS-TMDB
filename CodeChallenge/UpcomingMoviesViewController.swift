@@ -24,7 +24,6 @@ final class UpcomingMoviesViewController: UIViewController {
         
         self.setupContent()
         self.setupMoviesFetcher()
-        self.viewModel.fetchMoreMovies()
     }
     
     // MARK: - Private methods
