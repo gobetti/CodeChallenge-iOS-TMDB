@@ -91,6 +91,12 @@ final class MoviesListViewController: UIViewController {
             self.searchController.hidesNavigationBarDuringPresentation = false
         }
         self.definesPresentationContext = true
+        
+        Observable.merge(self.searchController.searchBar.rx.textDidBeginEditing.map { _ in false },
+                         self.searchController.searchBar.rx.textDidEndEditing.map { _ in true })
+            .bind { [unowned self] shouldHideNavigationBar in
+                self.navigationController?.hidesBarsOnSwipe = shouldHideNavigationBar
+            }.disposed(by: self.disposeBag)
     }
 }
 
