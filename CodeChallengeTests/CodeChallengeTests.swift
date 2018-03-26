@@ -91,6 +91,19 @@ class CodeChallengeTests: XCTestCase {
                              onSuccess: { _ in XCTFail() })
     }
     
+    func testMoviesAreValidIfOneOrSomeFail() {
+        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
+            self.customEndpoint(for: target, stubbedResourceName: "upcoming_page_2")
+        }
+        
+        self.runTestStubbing(endpointClosure: endpointClosure,
+                             expectationDescription: "received stub movies",
+                             onSuccess: {
+                                XCTAssertGreaterThan($0.count, 0)
+                                XCTAssertLessThan($0.count, 20)
+        }, onError: { _ in XCTFail() })
+    }
+    
     func testImage() {
         let movieJSONString = "{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"poster_path\":\"\\/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg\",\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg\",\"adult\":false,\"release_date\":\"2017-08-17\"}"
         let decoder = JSONDecoder()
@@ -140,6 +153,14 @@ class CodeChallengeTests: XCTestCase {
         waitForExpectations(timeout: 1.0) { error in
             XCTAssertNil(error)
         }
+    }
+    
+    private func customEndpoint<T: TargetType>(for target: T, stubbedResourceName: String) -> Endpoint {
+        return Endpoint(url: target.baseURL.absoluteString,
+                        sampleResponseClosure: { .networkResponse(200, try! Data(contentsOf: Bundle.main.url(forResource: stubbedResourceName, withExtension: "json")!)) },
+                        method: .get,
+                        task: target.task,
+                        httpHeaderFields: [:])
     }
     
     private func customEndpoint<T: TargetType>(for target: T, stubbedResponse: String) -> Endpoint {

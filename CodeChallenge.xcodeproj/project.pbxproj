@@ -11,6 +11,7 @@
 		3AA371D120674C7400FBB61C /* UICollectionView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA371D020674C7400FBB61C /* UICollectionView+Extensions.swift */; };
 		3AA371DA2067EB7400FBB61C /* CodeChallengeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA371D92067EB7400FBB61C /* CodeChallengeTests.swift */; };
 		3AA371FE2068494600FBB61C /* poster.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3AA371FD2068494600FBB61C /* poster.jpg */; };
+		3AA3721F206894D300FBB61C /* upcoming_page_2.json in Resources */ = {isa = PBXBuildFile; fileRef = 3AA3721C206894D300FBB61C /* upcoming_page_2.json */; };
 		3AB3B9EC206C9F6D000D4EC0 /* ObservableType+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB3B9EB206C9F6D000D4EC0 /* ObservableType+Extensions.swift */; };
 		3ACB49F01DC2298D00C873DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACB49EF1DC2298D00C873DB /* AppDelegate.swift */; };
 		3ACB49F21DC2298D00C873DB /* UpcomingMoviesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACB49F11DC2298D00C873DB /* UpcomingMoviesViewController.swift */; };
@@ -45,6 +46,7 @@
 		3AA371D92067EB7400FBB61C /* CodeChallengeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeChallengeTests.swift; sourceTree = "<group>"; };
 		3AA371DB2067EB7400FBB61C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3AA371FD2068494600FBB61C /* poster.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = poster.jpg; sourceTree = "<group>"; };
+		3AA3721C206894D300FBB61C /* upcoming_page_2.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = upcoming_page_2.json; sourceTree = "<group>"; };
 		3AB3B9EB206C9F6D000D4EC0 /* ObservableType+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObservableType+Extensions.swift"; sourceTree = "<group>"; };
 		3ACB49EC1DC2298D00C873DB /* CodeChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3ACB49EF1DC2298D00C873DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 			children = (
 				3AA371FD2068494600FBB61C /* poster.jpg */,
 				3AEBC623205E0DBF005B747A /* upcoming_page_1.json */,
+				3AA3721C206894D300FBB61C /* upcoming_page_2.json */,
 			);
 			path = Samples;
 			sourceTree = "<group>";
@@ -278,6 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3ACB49FA1DC2298D00C873DB /* LaunchScreen.storyboard in Resources */,
+				3AA3721F206894D300FBB61C /* upcoming_page_2.json in Resources */,
 				3ACB49F71DC2298D00C873DB /* Assets.xcassets in Resources */,
 				3AA371FE2068494600FBB61C /* poster.jpg in Resources */,
 				3AEBC624205E0DBF005B747A /* upcoming_page_1.json in Resources */,

@@ -148,16 +148,33 @@ extension TMDBImage: TargetType {
 }
 
 struct TMDBResults: Decodable {
-    let movies: [Movie]
+    private let results: [FailableMovie]
     let totalPages: Int
     
+    var movies: [Movie] {
+        return self.results.flatMap { $0.movie }
+    }
+    
     enum CodingKeys: String, CodingKey {
-        case movies = "results"
+        case results
         case totalPages = "total_pages"
     }
     
     init(movies: [Movie], totalPages: Int) {
-        self.movies = movies
+        self.results = movies.map(FailableMovie.init)
         self.totalPages = totalPages
+    }
+}
+
+private struct FailableMovie: Decodable {
+    let movie: Movie?
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        self.movie = try? container.decode(Movie.self)
+    }
+    
+    init(movie: Movie) {
+        self.movie = movie
     }
 }
