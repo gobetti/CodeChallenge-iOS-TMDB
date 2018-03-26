@@ -8,18 +8,19 @@
 import RxCocoa
 import RxSwift
 
-/// Has to be a class otherwise "Closure cannot implicitly capture a mutating self parameter"
-final class UpcomingMoviesViewModel {
+struct UpcomingMoviesViewModel {
     typealias MoviesCollection = [Movie]
     
     private let disposeBag = DisposeBag()
     private let tmdbModel = TMDBModel()
     
     private let pageRequester = PublishSubject<Void>()
-    private let upcomingMoviesSubject = PublishSubject<MoviesCollection>()
+    private let searchQuerySubject = PublishSubject<String>()
     
-    var upcomingMoviesDriver: Driver<MoviesCollection> {
-        return self.upcomingMoviesSubject
+    private let moviesSubject = PublishSubject<MoviesCollection>()
+    
+    var moviesDriver: Driver<MoviesCollection> {
+        return self.moviesSubject
             .asDriver(onErrorDriveWith: Driver.empty()) // assuming errors are handled before the subject
     }
     
@@ -31,25 +32,44 @@ final class UpcomingMoviesViewModel {
         return self.tmdbModel.image(width: width, from: movie)
     }
     
+    func searchMovies(query: String) {
+        self.searchQuerySubject.onNext(query)
+    }
+    
     init() {
-        var fetchedPages = 0
-        var nextPage: Int {
-            return fetchedPages + 1
+        self.setupPaginationListener()
+    }
+    
+    // MARK: - Private methods
+    private func createRequest(query: String, page: Int) -> Single<TMDBResults> {
+        guard !query.isEmpty else { return self.tmdbModel.upcomingMovies(page: page) }
+        return self.tmdbModel.search(query: query, page: page)
+    }
+    
+    private func setupPaginationListener() {
+        let paginator = { (query: String) -> Observable<MoviesCollection> in
+            var fetchedPages = 0
+            var nextPage: Int {
+                return fetchedPages + 1
+            }
+            
+            return self.pageRequester.startWith(())
+                .flatMapFirst { _ in
+                    return self.createRequest(query: query, page: nextPage)
+                        .do(onSuccess: { _ in fetchedPages += 1 })
+                        .catchError {
+                            print("Error: \($0)")
+                            return Single.just(TMDBResults(movies: [], totalPages: Int.max))
+                    }
+                }.takeWhileInclusive { fetchedPages < $0.totalPages }
+                .map { $0.movies }
+                .scan(MoviesCollection()) { (accumulatedMovies, newMovies) -> MoviesCollection in
+                    return accumulatedMovies + newMovies
+            }
         }
         
-        self.pageRequester.startWith(())
-            .flatMapFirst { [unowned self] in
-                self.tmdbModel.upcomingMovies(page: nextPage)
-                    .do(onSuccess: { _ in fetchedPages += 1 })
-                    .catchError {
-                        print("Error: \($0)")
-                        return Single.just(TMDBResults(movies: [], totalPages: Int.max))
-                }
-            }.takeWhileInclusive { fetchedPages < $0.totalPages }
-            .map { $0.movies }
-            .scan(MoviesCollection()) { (accumulatedMovies, newMovies) -> MoviesCollection in
-                return accumulatedMovies + newMovies
-            }.bind(to: self.upcomingMoviesSubject)
+        self.searchQuerySubject.flatMapLatest { paginator($0) }
+            .bind(to: self.moviesSubject)
             .disposed(by: self.disposeBag)
     }
 }

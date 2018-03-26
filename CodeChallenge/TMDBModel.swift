@@ -37,6 +37,10 @@ struct TMDBModel {
             .mapImage()
     }
     
+    func search(query: String, page: Int = 1) -> Single<TMDBResults> {
+        return self.requestMovies(.search(query: query, page: page))
+    }
+    
     func upcomingMovies(page: Int = 1) -> Single<TMDBResults> {
         return self.requestMovies(.upcomingMovies(page: page))
     }
@@ -65,6 +69,7 @@ struct MoyaClosures<T: TargetType> {
 }
 
 enum TMDB {
+    case search(query: String, page: Int)
     case upcomingMovies(page: Int)
 }
 
@@ -79,6 +84,8 @@ extension TMDB: TargetType {
     
     public var path: String {
         switch self {
+        case .search:
+            return "/search/movie"
         case .upcomingMovies:
             return "/movie/upcoming"
         }
@@ -90,6 +97,8 @@ extension TMDB: TargetType {
     
     public var sampleData: Data {
         switch self {
+        case .search:
+            return try! Data(contentsOf: Bundle.main.url(forResource: "search_1", withExtension: "json")!)
         case .upcomingMovies:
             return try! Data(contentsOf: Bundle.main.url(forResource: "upcoming_page_1", withExtension: "json")!)
         }
@@ -106,10 +115,19 @@ extension TMDB: TargetType {
     
     private var parameters: [String: Any] {
         let defaultParameters = ["api_key" : api_key]
+        var parameters = defaultParameters
+        
         switch self {
-        case .upcomingMovies(let page):
-            return defaultParameters.merging(["page": "\(page)"]) { (_, new) in new }
+        case .search(_, let page),
+             .upcomingMovies(let page):
+            parameters.merge(["page": "\(page)"]) { (_, new) in new }
         }
+        
+        if case .search(let query, _) = self {
+            parameters.merge(["query": "\(query)"]) { (_, new) in new }
+        }
+        
+        return parameters
     }
 }
 

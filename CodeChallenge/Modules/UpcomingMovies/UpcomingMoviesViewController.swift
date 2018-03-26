@@ -15,17 +15,20 @@ final class UpcomingMoviesViewController: UIViewController {
     
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
-                                                  collectionViewLayout: UpcomingMoviesFlowLayout())
+                                                  collectionViewLayout: MoviesListFlowLayout())
+    private let searchController = UISearchController(searchResultsController: nil)
     
     // MARK: - UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.hidesBarsOnSwipe = true
         self.view.backgroundColor = .white
+        self.navigationController?.hidesBarsOnSwipe = true
         
         self.setupContent()
         self.setupMoviesFetcher()
         self.setupMovieNavigator()
+        self.setupSearch()
     }
     
     // MARK: - Private methods
@@ -42,7 +45,7 @@ final class UpcomingMoviesViewController: UIViewController {
             self.collectionView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
             ])
         
-        self.viewModel.upcomingMoviesDriver
+        self.viewModel.moviesDriver
             .drive(self.collectionView.rx.items(cellType: UpcomingMovieCell.self)) { (_, movie, cell) in
                 cell.titleLabel.text = movie.name
                 cell.releaseDateLabel.text = DateFormatter.localizedString(from: movie.releaseDate,
@@ -52,6 +55,7 @@ final class UpcomingMoviesViewController: UIViewController {
             }.disposed(by: self.disposeBag)
     }
     
+    // MARK: - Private methods
     private func setupMoviesFetcher() {
         self.collectionView.rx.willEndDragging
             .bind { [unowned self] (_, targetContentOffset) in
@@ -75,9 +79,28 @@ final class UpcomingMoviesViewController: UIViewController {
                                                         animated: true)
             }.disposed(by: self.disposeBag)
     }
+    
+    private func setupSearch() {
+        self.searchController.obscuresBackgroundDuringPresentation = false
+        self.searchController.searchBar.placeholder = "Search for Movies"
+        if #available(iOS 11.0, *) {
+            self.navigationItem.searchController = self.searchController
+        } else {
+            // TODO: not working in older iOS versions
+        }
+        self.definesPresentationContext = true
+        
+        self.searchController.searchBar.rx.text
+            .map { text -> String in
+                guard let text = text else { return "" }
+                return text
+            }.bind { [unowned self] in
+                self.viewModel.searchMovies(query: $0)
+            }.disposed(by: self.disposeBag)
+    }
 }
 
-private class UpcomingMoviesFlowLayout: UICollectionViewFlowLayout {
+private class MoviesListFlowLayout: UICollectionViewFlowLayout {
     override var itemSize: CGSize {
         get { return CGSize(width: UIScreen.main.bounds.width, height: 55) }
         set {}
