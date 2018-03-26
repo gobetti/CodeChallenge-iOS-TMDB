@@ -86,7 +86,8 @@ final class MoviesListViewController: UIViewController {
         if #available(iOS 11.0, *) {
             self.navigationItem.searchController = self.searchController
         } else {
-            // TODO: not working in older iOS versions
+            self.navigationItem.titleView = self.searchController.searchBar
+            self.searchController.hidesNavigationBarDuringPresentation = false
         }
         self.definesPresentationContext = true
         
