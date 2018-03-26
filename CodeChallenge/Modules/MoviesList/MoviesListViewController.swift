@@ -81,6 +81,7 @@ final class MoviesListViewController: UIViewController {
     }
     
     private func setupSearch() {
+        self.searchController.searchResultsUpdater = self
         self.searchController.obscuresBackgroundDuringPresentation = false
         self.searchController.searchBar.placeholder = "Search for Movies"
         if #available(iOS 11.0, *) {
@@ -90,14 +91,12 @@ final class MoviesListViewController: UIViewController {
             self.searchController.hidesNavigationBarDuringPresentation = false
         }
         self.definesPresentationContext = true
-        
-        self.searchController.searchBar.rx.text
-            .map { text -> String in
-                guard let text = text else { return "" }
-                return text
-            }.bind { [unowned self] in
-                self.viewModel.searchMovies(query: $0)
-            }.disposed(by: self.disposeBag)
+    }
+}
+
+extension MoviesListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        self.viewModel.searchMovies(query: self.searchController.searchBar.text ?? "")
     }
 }
 

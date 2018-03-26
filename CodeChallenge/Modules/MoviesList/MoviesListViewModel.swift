@@ -68,7 +68,7 @@ struct MoviesListViewModel {
             }
         }
         
-        self.searchQuerySubject
+        self.searchQuerySubject.startWith("")
             .debounce(0.5, scheduler: MainScheduler.instance)
             .distinctUntilChanged()
             .flatMapLatest { paginator($0) }
