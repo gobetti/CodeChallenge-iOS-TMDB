@@ -1,5 +1,5 @@
 //
-//  UpcomingMoviesViewModel.swift
+//  MoviesListViewModel.swift
 //  CodeChallenge
 //
 //  Created by Marcelo Gobetti on 3/18/18.
@@ -8,7 +8,7 @@
 import RxCocoa
 import RxSwift
 
-struct UpcomingMoviesViewModel {
+struct MoviesListViewModel {
     typealias MoviesCollection = [Movie]
     
     private let disposeBag = DisposeBag()

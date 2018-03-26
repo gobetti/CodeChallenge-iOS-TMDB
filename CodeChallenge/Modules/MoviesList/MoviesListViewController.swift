@@ -1,5 +1,5 @@
 //
-//  UpcomingMoviesViewController.swift
+//  MoviesListViewController.swift
 //  CodeChallenge
 //
 //  Created by Marcelo Gobetti on 10/27/16.
@@ -9,9 +9,9 @@ import UIKit
 import RxCocoa
 import RxSwift
 
-final class UpcomingMoviesViewController: UIViewController {
+final class MoviesListViewController: UIViewController {
     private let disposeBag = DisposeBag()
-    private let viewModel = UpcomingMoviesViewModel()
+    private let viewModel = MoviesListViewModel()
     
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
@@ -34,7 +34,7 @@ final class UpcomingMoviesViewController: UIViewController {
     // MARK: - Private methods
     private func setupContent() {
         self.collectionView.backgroundColor = .clear
-        self.collectionView.register(cellType: UpcomingMovieCell.self)
+        self.collectionView.register(cellType: MoviesListCell.self)
         self.view.addSubview(self.collectionView)
         
         self.collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,7 +46,7 @@ final class UpcomingMoviesViewController: UIViewController {
             ])
         
         self.viewModel.moviesDriver
-            .drive(self.collectionView.rx.items(cellType: UpcomingMovieCell.self)) { (_, movie, cell) in
+            .drive(self.collectionView.rx.items(cellType: MoviesListCell.self)) { (_, movie, cell) in
                 cell.titleLabel.text = movie.name
                 cell.releaseDateLabel.text = DateFormatter.localizedString(from: movie.releaseDate,
                                                                            dateStyle: .medium,

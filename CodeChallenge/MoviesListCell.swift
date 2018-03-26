@@ -1,5 +1,5 @@
 //
-//  UpcomingMovieCell.swift
+//  MoviesListCell.swift
 //  CodeChallenge
 //
 //  Created by Marcelo Gobetti on 11/9/16.
@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-final class UpcomingMovieCell: UICollectionViewCell {
+final class MoviesListCell: UICollectionViewCell {
     private var disposeBag = DisposeBag()
     
     var image: Single<UIImage?>? {
