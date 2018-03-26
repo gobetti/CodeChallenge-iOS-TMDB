@@ -68,7 +68,10 @@ struct MoviesListViewModel {
             }
         }
         
-        self.searchQuerySubject.flatMapLatest { paginator($0) }
+        self.searchQuerySubject
+            .debounce(0.5, scheduler: MainScheduler.instance)
+            .distinctUntilChanged()
+            .flatMapLatest { paginator($0) }
             .bind(to: self.moviesSubject)
             .disposed(by: self.disposeBag)
     }
