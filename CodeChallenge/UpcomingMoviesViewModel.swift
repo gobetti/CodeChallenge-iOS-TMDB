@@ -43,9 +43,11 @@ final class UpcomingMoviesViewModel {
                     .do(onSuccess: { _ in fetchedPages += 1 })
                     .catchError {
                         print("Error: \($0)")
-                        return Single.just([])
+                        return Single.just(TMDBResults(movies: [], totalPages: Int.max))
                 }
-            }.scan(MoviesCollection()) { (accumulatedMovies, newMovies) -> MoviesCollection in
+            }.takeWhileInclusive { fetchedPages < $0.totalPages }
+            .map { $0.movies }
+            .scan(MoviesCollection()) { (accumulatedMovies, newMovies) -> MoviesCollection in
                 return accumulatedMovies + newMovies
             }.bind(to: self.upcomingMoviesSubject)
             .disposed(by: self.disposeBag)

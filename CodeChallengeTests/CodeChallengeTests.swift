@@ -129,8 +129,8 @@ class CodeChallengeTests: XCTestCase {
         
         self.tmdbModel.upcomingMovies().subscribe { event in
             switch event {
-            case let .success(movies):
-                onSuccess?(movies)
+            case let .success(results):
+                onSuccess?(results.movies)
             case let .error(error):
                 onError?(error)
             }

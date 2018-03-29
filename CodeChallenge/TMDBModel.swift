@@ -37,19 +37,19 @@ struct TMDBModel {
             .mapImage()
     }
     
-    func upcomingMovies(page: Int = 1) -> Single<[Movie]> {
+    func upcomingMovies(page: Int = 1) -> Single<TMDBResults> {
         return self.requestMovies(.upcomingMovies(page: page))
     }
     
     // Maps into [Movie] the "results" part of the JSON returned by the API
-    private func requestMovies(_ type: TMDB) -> Single<[Movie]> {
+    private func requestMovies(_ type: TMDB) -> Single<TMDBResults> {
         return self.moviesProvider.rx
             .request(type)
             .map { response -> TMDBResults in
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .formatted(Movie.dateFormatter)
                 return try decoder.decode(TMDBResults.self, from: response.data)
-            }.map { $0.movies }
+            }
     }
 }
 
@@ -147,10 +147,17 @@ extension TMDBImage: TargetType {
     }
 }
 
-private struct TMDBResults: Decodable {
+struct TMDBResults: Decodable {
     let movies: [Movie]
+    let totalPages: Int
     
     enum CodingKeys: String, CodingKey {
         case movies = "results"
+        case totalPages = "total_pages"
+    }
+    
+    init(movies: [Movie], totalPages: Int) {
+        self.movies = movies
+        self.totalPages = totalPages
     }
 }
