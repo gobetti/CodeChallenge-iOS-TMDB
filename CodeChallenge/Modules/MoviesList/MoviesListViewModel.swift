@@ -12,32 +12,32 @@ struct MoviesListViewModel {
     typealias MoviesCollection = [Movie]
     
     private let disposeBag = DisposeBag()
-    private let tmdbModel = TMDBModel()
-    
-    private let moviesSubject = PublishSubject<MoviesCollection>()
-    
-    var moviesDriver: Driver<MoviesCollection> {
-        return self.moviesSubject
-            .asDriver(onErrorDriveWith: Driver.empty()) // assuming errors are handled before the subject
-    }
+    private let tmdbModel: TMDBModel
+    let moviesDriver: Driver<MoviesCollection>
     
     func image(width: Int, from movie: Movie) -> Single<UIImage?> {
         return self.tmdbModel.image(width: width, from: movie)
     }
     
-    init(pageRequester: Observable<Void>, searchRequester: Observable<String>) {
-        self.setupPaginationListener(pageRequester: pageRequester,
-                                     searchRequester: searchRequester)
+    init(pageRequester: Observable<Void>,
+         searchRequester: Observable<String>,
+         tmdbModel: TMDBModel = TMDBModel()) {
+        self.moviesDriver = MoviesListViewModel.createMoviesDriver(pageRequester: pageRequester,
+                                                                   searchRequester: searchRequester,
+                                                                   tmdbModel: tmdbModel)
+        self.tmdbModel = tmdbModel
     }
     
-    // MARK: - Private methods
-    private func createRequest(query: String, page: Int) -> Single<TMDBResults> {
-        guard !query.isEmpty else { return self.tmdbModel.upcomingMovies(page: page) }
-        return self.tmdbModel.search(query: query, page: page)
+    // MARK: - Private static methods
+    private static func createRequest(query: String, page: Int, tmdbModel: TMDBModel) -> Single<TMDBResults> {
+        guard !query.isEmpty else { return tmdbModel.upcomingMovies(page: page) }
+        return tmdbModel.search(query: query, page: page)
     }
     
-    private func setupPaginationListener(pageRequester: Observable<Void>,
-                                         searchRequester: Observable<String>) {
+    private static func createMoviesDriver(pageRequester: Observable<Void>,
+                                           searchRequester: Observable<String>,
+                                           tmdbModel: TMDBModel)
+        -> Driver<MoviesCollection> {
         let paginator = { (query: String) -> Observable<MoviesCollection> in
             var fetchedPages = 0
             var nextPage: Int {
@@ -46,7 +46,7 @@ struct MoviesListViewModel {
             
             return pageRequester.startWith(())
                 .flatMapFirst { _ in
-                    return self.createRequest(query: query, page: nextPage)
+                    return MoviesListViewModel.createRequest(query: query, page: nextPage, tmdbModel: tmdbModel)
                         .do(onSuccess: { _ in fetchedPages += 1 })
                         .catchError {
                             print("Error: \($0)")
@@ -59,11 +59,13 @@ struct MoviesListViewModel {
             }
         }
         
-        searchRequester.startWith("")
+        return searchRequester.startWith("")
             .debounce(0.5, scheduler: MainScheduler.instance)
             .distinctUntilChanged()
             .flatMapLatest { paginator($0) }
-            .bind(to: self.moviesSubject)
-            .disposed(by: self.disposeBag)
+            .asDriver(onErrorRecover: {
+                print("Unexpected error: \($0.localizedDescription)")
+                return Driver.just(MoviesCollection())
+            })
     }
 }
