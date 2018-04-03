@@ -11,7 +11,8 @@ import RxSwift
 
 final class MoviesListViewController: UIViewController {
     private let disposeBag = DisposeBag()
-    private lazy var viewModel = MoviesListViewModel(pageRequester: self.pageRequester)
+    private lazy var viewModel = MoviesListViewModel(pageRequester: self.pageRequester,
+                                                     searchRequester: self.searchRequester)
     
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
@@ -95,12 +96,19 @@ final class MoviesListViewController: UIViewController {
                 self.navigationController?.hidesBarsOnSwipe = shouldHideNavigationBar
             }.disposed(by: self.disposeBag)
     }
+    
+    private var searchRequester: Observable<String> {
+        // TODO: Rx extension for UISearchResultsUpdating
+        return self.rx.sentMessage(#selector(self.updateSearchResults(for:)))
+            .flatMap { Observable.from(optional: $0.first as? UISearchController) }
+            .map { $0.searchBar.text }
+            .flatMap { Observable.from(optional: $0) }
+    }
 }
 
+// TODO: Rx extension for UISearchResultsUpdating
 extension MoviesListViewController: UISearchResultsUpdating {
-    func updateSearchResults(for searchController: UISearchController) {
-        self.viewModel.searchMovies(query: self.searchController.searchBar.text ?? "")
-    }
+    func updateSearchResults(for searchController: UISearchController) {}
 }
 
 private class MoviesListFlowLayout: UICollectionViewFlowLayout {
