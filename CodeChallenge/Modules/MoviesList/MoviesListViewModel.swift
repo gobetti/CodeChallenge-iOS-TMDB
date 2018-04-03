@@ -14,7 +14,6 @@ struct MoviesListViewModel {
     private let disposeBag = DisposeBag()
     private let tmdbModel = TMDBModel()
     
-    private let pageRequester = PublishSubject<Void>()
     private let searchQuerySubject = PublishSubject<String>()
     
     private let moviesSubject = PublishSubject<MoviesCollection>()
@@ -22,10 +21,6 @@ struct MoviesListViewModel {
     var moviesDriver: Driver<MoviesCollection> {
         return self.moviesSubject
             .asDriver(onErrorDriveWith: Driver.empty()) // assuming errors are handled before the subject
-    }
-    
-    func fetchMoreMovies() {
-        self.pageRequester.onNext(())
     }
     
     func image(width: Int, from movie: Movie) -> Single<UIImage?> {
@@ -36,8 +31,8 @@ struct MoviesListViewModel {
         self.searchQuerySubject.onNext(query)
     }
     
-    init() {
-        self.setupPaginationListener()
+    init(pageRequester: Observable<Void>) {
+        self.setupPaginationListener(pageRequester: pageRequester)
     }
     
     // MARK: - Private methods
@@ -46,14 +41,14 @@ struct MoviesListViewModel {
         return self.tmdbModel.search(query: query, page: page)
     }
     
-    private func setupPaginationListener() {
+    private func setupPaginationListener(pageRequester: Observable<Void>) {
         let paginator = { (query: String) -> Observable<MoviesCollection> in
             var fetchedPages = 0
             var nextPage: Int {
                 return fetchedPages + 1
             }
             
-            return self.pageRequester.startWith(())
+            return pageRequester.startWith(())
                 .flatMapFirst { _ in
                     return self.createRequest(query: query, page: nextPage)
                         .do(onSuccess: { _ in fetchedPages += 1 })

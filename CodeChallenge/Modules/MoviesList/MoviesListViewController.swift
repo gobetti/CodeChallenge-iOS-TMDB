@@ -11,7 +11,7 @@ import RxSwift
 
 final class MoviesListViewController: UIViewController {
     private let disposeBag = DisposeBag()
-    private let viewModel = MoviesListViewModel()
+    private lazy var viewModel = MoviesListViewModel(pageRequester: self.pageRequester)
     
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
@@ -26,7 +26,6 @@ final class MoviesListViewController: UIViewController {
         self.navigationController?.hidesBarsOnSwipe = true
         
         self.setupContent()
-        self.setupMoviesFetcher()
         self.setupMovieNavigator()
         self.setupSearch()
     }
@@ -56,15 +55,13 @@ final class MoviesListViewController: UIViewController {
     }
     
     // MARK: - Private methods
-    private func setupMoviesFetcher() {
-        self.collectionView.rx.willEndDragging
-            .bind { [unowned self] (_, targetContentOffset) in
+    private var pageRequester: Observable<Void> {
+        return self.collectionView.rx.willEndDragging
+            .filter { [unowned self] (_, targetContentOffset) in
                 let scrollView = self.collectionView
                 let distance = scrollView.contentSize.height - (targetContentOffset.pointee.y + scrollView.bounds.height)
-                if distance < 200 {
-                    self.viewModel.fetchMoreMovies()
-                }
-            }.disposed(by: self.disposeBag)
+                return distance < 200
+            }.map { _ in }
     }
     
     private func setupMovieNavigator() {
