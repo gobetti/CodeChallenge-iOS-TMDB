@@ -47,7 +47,7 @@ final class MoviesListViewController: UIViewController {
         
         self.viewModel.moviesDriver
             .drive(self.collectionView.rx.items(cellType: MoviesListCell.self)) { (_, movie, cell) in
-                cell.titleLabel.text = movie.name
+                cell.titleLabel.text = movie.originalTitle
                 cell.releaseDateLabel.text = DateFormatter.localizedString(from: movie.releaseDate,
                                                                            dateStyle: .medium,
                                                                            timeStyle: .none)

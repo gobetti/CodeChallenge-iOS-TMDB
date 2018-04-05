@@ -50,9 +50,7 @@ struct TMDBModel {
         return self.moviesProvider.rx
             .request(type)
             .map { response -> TMDBResults in
-                let decoder = JSONDecoder()
-                decoder.dateDecodingStrategy = .formatted(Movie.dateFormatter)
-                return try decoder.decode(TMDBResults.self, from: response.data)
+                return try TMDBResults.decoder.decode(TMDBResults.self, from: response.data)
             }
     }
 }
@@ -170,18 +168,19 @@ struct TMDBResults: Decodable {
     let totalPages: Int
     
     var movies: [Movie] {
-        return self.results.flatMap { $0.movie }
-    }
-    
-    enum CodingKeys: String, CodingKey {
-        case results
-        case totalPages = "total_pages"
+        return self.results.compactMap { $0.movie }
     }
     
     init(movies: [Movie], totalPages: Int) {
         self.results = movies.map(FailableMovie.init)
         self.totalPages = totalPages
     }
+    
+    static let decoder: JSONDecoder = {
+        $0.dateDecodingStrategy = .formatted(Movie.dateFormatter)
+        $0.keyDecodingStrategy = .convertFromSnakeCase
+        return $0
+    }(JSONDecoder())
 }
 
 private struct FailableMovie: Decodable {
