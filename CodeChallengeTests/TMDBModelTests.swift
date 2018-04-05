@@ -1,5 +1,5 @@
 //
-//  CodeChallengeTests.swift
+//  TMDBModelTests.swift
 //  CodeChallengeTests
 //
 //  Created by Marcelo Gobetti on 09/09/17.
@@ -12,7 +12,7 @@ import RxSwift
 
 class TestError: NSError {}
 
-class CodeChallengeTests: XCTestCase {
+class TMDBModelTests: XCTestCase {
     var disposeBag: DisposeBag!
     var tmdbModel: TMDBModel!
     

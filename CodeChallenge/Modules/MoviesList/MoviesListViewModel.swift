@@ -21,9 +21,13 @@ struct MoviesListViewModel {
     
     init(pageRequester: Observable<Void>,
          searchRequester: Observable<String>,
+         debounceTime: RxTimeInterval = 0.5,
+         scheduler: SchedulerType = MainScheduler.instance,
          tmdbModel: TMDBModel = TMDBModel()) {
         self.moviesDriver = MoviesListViewModel.createMoviesDriver(pageRequester: pageRequester,
                                                                    searchRequester: searchRequester,
+                                                                   debounceTime: debounceTime,
+                                                                   scheduler: scheduler,
                                                                    tmdbModel: tmdbModel)
         self.tmdbModel = tmdbModel
     }
@@ -36,6 +40,8 @@ struct MoviesListViewModel {
     
     private static func createMoviesDriver(pageRequester: Observable<Void>,
                                            searchRequester: Observable<String>,
+                                           debounceTime: RxTimeInterval,
+                                           scheduler: SchedulerType,
                                            tmdbModel: TMDBModel)
         -> Driver<MoviesCollection> {
         let paginator = { (query: String) -> Observable<MoviesCollection> in
@@ -60,7 +66,7 @@ struct MoviesListViewModel {
         }
         
         return searchRequester.startWith("")
-            .debounce(0.5, scheduler: MainScheduler.instance)
+            .debounce(debounceTime, scheduler: scheduler)
             .distinctUntilChanged()
             .flatMapLatest { paginator($0) }
             .asDriver(onErrorRecover: {

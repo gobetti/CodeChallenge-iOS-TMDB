@@ -13,4 +13,5 @@ end
 
 target 'CodeChallengeTests' do
     shared_pods
+    pod 'RxTest' # follows RxCocoa's version
 end
