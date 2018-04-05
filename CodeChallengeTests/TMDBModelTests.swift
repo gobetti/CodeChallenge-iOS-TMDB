@@ -10,7 +10,9 @@ import XCTest
 import Moya
 import RxSwift
 
-class TestError: NSError {}
+enum TestError: Error {
+    case someError
+}
 
 class TMDBModelTests: XCTestCase {
     var disposeBag: DisposeBag!
@@ -72,7 +74,7 @@ class TMDBModelTests: XCTestCase {
     func testUpcomingMoviesErrorsOutOnNetworkError() {
         let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
             return Endpoint(url: target.baseURL.absoluteString, sampleResponseClosure: {
-                return .networkError(TestError())
+                return .networkError(TestError.someError as NSError)
             }, method: .get, task: target.task, httpHeaderFields: [:])
         }
         

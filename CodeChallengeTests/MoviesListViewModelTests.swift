@@ -48,4 +48,37 @@ class MoviesListViewModelTests: XCTestCase {
         ]
         XCTAssertEqual(results.events, expected)
     }
+    
+    func testEmptyListIsReturnedOnNetworkError() {
+        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
+            return Endpoint(url: target.baseURL.absoluteString, sampleResponseClosure: {
+                return .networkError(TestError.someError as NSError)
+            }, method: .get, task: target.task, httpHeaderFields: [:])
+        }
+        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: endpointClosure,
+                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        
+        let pageRequester = Observable<Void>.never()
+        let searchRequester = Observable<String>.never()
+        let debounceTime = 2
+        
+        let viewModel = MoviesListViewModel(pageRequester: pageRequester,
+                                            searchRequester: searchRequester,
+                                            debounceTime: RxTimeInterval(debounceTime),
+                                            scheduler: self.scheduler,
+                                            tmdbModel: tmdbModel)
+        
+        let results = scheduler.createObserver(Int.self)
+        
+        scheduler.scheduleAt(0) {
+            viewModel.moviesDriver.map { $0.count }
+                .drive(results).disposed(by: self.disposeBag)
+        }
+        scheduler.start()
+        
+        let expected = [
+            next(debounceTime, 0)
+        ]
+        XCTAssertEqual(results.events, expected)
+    }
 }
