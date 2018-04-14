@@ -106,11 +106,7 @@ class TMDBModelTests: XCTestCase {
     }
     
     func testMoviesAreValidIfOneOrSomeFail() {
-        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
-            self.customEndpoint(for: target, stubbedResourceName: "upcoming_page_2")
-        }
-        
-        let events = self.simulatedEvents(endpointClosure: endpointClosure).map {
+        let events = self.simulatedEvents(page: 2).map {
             $0.map { $0.movies.count }
         }
         
@@ -150,7 +146,8 @@ class TMDBModelTests: XCTestCase {
         XCTAssertEqual(events, expected)
     }
     
-    private func simulatedEvents(endpointClosure: @escaping MoyaProvider<TMDB>.EndpointClosure = MoyaProvider<TMDB>.defaultEndpointMapping,
+    private func simulatedEvents(page: Int = 1,
+                                 endpointClosure: @escaping MoyaProvider<TMDB>.EndpointClosure = MoyaProvider<TMDB>.defaultEndpointMapping,
                                  stubClosure: MoyaProvider<TMDB>.StubClosure = MoyaProvider<TMDB>.immediatelyStub)
         -> [Recorded<Event<TMDBResults>>] {
             let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: endpointClosure,
@@ -158,20 +155,12 @@ class TMDBModelTests: XCTestCase {
             let results = scheduler.createObserver(TMDBResults.self)
             
             scheduler.scheduleAt(self.initialTime) {
-                tmdbModel.upcomingMovies().asObservable()
+                tmdbModel.upcomingMovies(page: page).asObservable()
                     .subscribe(results).disposed(by: self.disposeBag)
             }
             scheduler.start()
             
             return results.events
-    }
-    
-    private func customEndpoint<T: TargetType>(for target: T, stubbedResourceName: String) -> Endpoint {
-        return Endpoint(url: target.baseURL.absoluteString,
-                        sampleResponseClosure: { .networkResponse(200, try! Data(contentsOf: Bundle.main.url(forResource: stubbedResourceName, withExtension: "json")!)) },
-                        method: .get,
-                        task: target.task,
-                        httpHeaderFields: [:])
     }
     
     private func customEndpoint<T: TargetType>(for target: T, stubbedResponse: String) -> Endpoint {

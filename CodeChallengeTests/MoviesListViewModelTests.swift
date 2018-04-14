@@ -18,7 +18,9 @@ class MoviesListViewModelTests: XCTestCase {
     func expectedResultsCount(for request: TMDB) -> Int {
         switch request {
         case .search: return 18
-        case .upcomingMovies: return 20
+        case .upcomingMovies(let page):
+            if page == 2 { return 19 }
+            return 20
         }
     }
     
@@ -121,6 +123,34 @@ class MoviesListViewModelTests: XCTestCase {
             next(debounceTime, expectedResultsCount1),
             next(searchTime + debounceTime, expectedResultsCount(for: .search(query: "abc", page: 1))),
             next(searchClearTime + debounceTime, expectedResultsCount1)
+        ]
+        XCTAssertEqual(events, expected)
+    }
+    
+    func testSecondPageIsAppendedWhenUserPaginates() {
+        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
+                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        
+        let paginationTime = 100
+        let pageRequester = scheduler.createHotObservable([
+            next(paginationTime, ())
+            ])
+        let searchRequester = Observable<String>.never()
+        let debounceTime = 2
+        XCTAssertGreaterThan(paginationTime, debounceTime,
+                             "This test is not meant to work for a paginationTime <= debounceTime")
+        
+        let events = simulatedMoviesCountEvents(pageRequester: pageRequester.asObservable(),
+                                                searchRequester: searchRequester,
+                                                debounceTime: debounceTime,
+                                                tmdbModel: tmdbModel)
+        
+        let expectedResultsCount1 = expectedResultsCount(for: .upcomingMovies(page: 1))
+        let expectedResultsCount2 = expectedResultsCount1 + expectedResultsCount(for: .upcomingMovies(page: 2))
+        
+        let expected = [
+            next(debounceTime, expectedResultsCount1),
+            next(paginationTime, expectedResultsCount2)
         ]
         XCTAssertEqual(events, expected)
     }

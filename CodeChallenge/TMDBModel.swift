@@ -97,7 +97,10 @@ extension TMDB: TargetType {
         switch self {
         case .search:
             return try! Data(contentsOf: Bundle.main.url(forResource: "search_1", withExtension: "json")!)
-        case .upcomingMovies:
+        case .upcomingMovies(let page):
+            if page == 2 {
+                return try! Data(contentsOf: Bundle.main.url(forResource: "upcoming_page_2", withExtension: "json")!)
+            }
             return try! Data(contentsOf: Bundle.main.url(forResource: "upcoming_page_1", withExtension: "json")!)
         }
     }
