@@ -163,7 +163,7 @@ extension TMDBImage: TargetType {
     }
 }
 
-struct TMDBResults: Decodable {
+struct TMDBResults: Decodable, Equatable {
     private let results: [FailableMovie]
     let totalPages: Int
     
@@ -183,7 +183,7 @@ struct TMDBResults: Decodable {
     }(JSONDecoder())
 }
 
-private struct FailableMovie: Decodable {
+private struct FailableMovie: Decodable, Equatable {
     let movie: Movie?
     
     init(from decoder: Decoder) throws {

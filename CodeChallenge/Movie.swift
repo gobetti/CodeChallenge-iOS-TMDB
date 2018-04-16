@@ -25,3 +25,9 @@ struct Movie: Decodable {
         return $0
     }(DateFormatter())
 }
+
+extension Movie: Equatable {
+  public static func == (lhs: Self, rhs: Self) -> Bool {
+    return lhs.id == rhs.id
+  }
+}

@@ -9,6 +9,7 @@ import XCTest
 @testable import CodeChallenge
 import Moya
 import RxSwift
+import RxTest
 
 enum TestError: Error {
     case someError
@@ -16,15 +17,13 @@ enum TestError: Error {
 
 class TMDBModelTests: XCTestCase {
     var disposeBag: DisposeBag!
-    var tmdbModel: TMDBModel!
+    var scheduler: TestScheduler!
+    let initialTime = 0
     
     override func setUp() {
         super.setUp()
         self.disposeBag = DisposeBag()
-    }
-    
-    override func tearDown() {
-        super.tearDown()
+        self.scheduler = TestScheduler(initialClock: 0)
     }
     
     /// This test serves as a test for many other things that we can consider
@@ -34,9 +33,16 @@ class TMDBModelTests: XCTestCase {
     /// - we're able to map a raw JSON into an array.
     /// - we're able to map individual JSON chunks into Movie objects.
     func testUpcomingMoviesSampleDataHas20Movies() {
-        self.runTestStubbing(expectationDescription: "received stub movies",
-                             onSuccess: { XCTAssertEqual($0.count, 20) },
-                             onError: { _ in XCTFail() })
+        let events = self.simulatedEvents().map {
+            $0.map { $0.movies.count }
+        }
+        
+        let expected = [
+            next(self.initialTime, 20),
+            completed(self.initialTime)
+        ]
+        
+        XCTAssertEqual(events, expected)
     }
     
     func testMoviePrefersPosterWhenPosterAndBackdropAreAvailable() {
@@ -48,12 +54,16 @@ class TMDBModelTests: XCTestCase {
             self.customEndpoint(for: target, stubbedResponse: "{\"results\":[{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"poster_path\":\"\\\(posterPath)\",\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\\(backdropPath)\",\"adult\":false,\"release_date\":\"2017-08-17\"}],\"page\":1,\"total_results\":185,\"dates\":{\"maximum\":\"2017-10-04\",\"minimum\":\"2017-09-16\"},\"total_pages\":10}")
         }
         
-        self.runTestStubbing(endpointClosure: endpointClosure,
-                             expectationDescription: "empty response",
-                             onSuccess: {
-                                guard let movie = $0.first else { return XCTFail() }
-                                XCTAssertEqual(movie.imagePath, posterPath)
-        }, onError: { _ in XCTFail() })
+        let events = self.simulatedEvents(endpointClosure: endpointClosure).map {
+            $0.map { $0.movies.first?.imagePath }
+        }
+        
+        let expected = [
+            next(self.initialTime, Optional(posterPath)),
+            completed(self.initialTime)
+        ]
+        
+        XCTAssertEqual(events, expected)
     }
     
     func testMovieReadsBackdropWhenPosterIsUnavailable() {
@@ -63,12 +73,16 @@ class TMDBModelTests: XCTestCase {
             self.customEndpoint(for: target, stubbedResponse: "{\"results\":[{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\\(backdropPath)\",\"adult\":false,\"release_date\":\"2017-08-17\"}],\"page\":1,\"total_results\":185,\"dates\":{\"maximum\":\"2017-10-04\",\"minimum\":\"2017-09-16\"},\"total_pages\":10}")
         }
         
-        self.runTestStubbing(endpointClosure: endpointClosure,
-                             expectationDescription: "empty response",
-                             onSuccess: {
-                                guard let movie = $0.first else { return XCTFail() }
-                                XCTAssertEqual(movie.imagePath, backdropPath)
-        }, onError: { _ in XCTFail() })
+        let events = self.simulatedEvents(endpointClosure: endpointClosure).map {
+            $0.map { $0.movies.first?.imagePath }
+        }
+        
+        let expected = [
+            next(self.initialTime, Optional(backdropPath)),
+            completed(self.initialTime)
+        ]
+        
+        XCTAssertEqual(events, expected)
     }
     
     func testUpcomingMoviesErrorsOutOnNetworkError() {
@@ -78,9 +92,8 @@ class TMDBModelTests: XCTestCase {
             }, method: .get, task: target.task, httpHeaderFields: [:])
         }
         
-        self.runTestStubbing(endpointClosure: endpointClosure,
-                             expectationDescription: "network error",
-                             onSuccess: { _ in XCTFail() })
+        let events = self.simulatedEvents(endpointClosure: endpointClosure)
+        XCTAssertThrowsError(events)
     }
     
     func testUpcomingMoviesErrorsOutOnEmptyResponse() {
@@ -88,9 +101,8 @@ class TMDBModelTests: XCTestCase {
             self.customEndpoint(for: target, stubbedResponse: "")
         }
         
-        self.runTestStubbing(endpointClosure: endpointClosure,
-                             expectationDescription: "empty response",
-                             onSuccess: { _ in XCTFail() })
+        let events = self.simulatedEvents(endpointClosure: endpointClosure)
+        XCTAssertThrowsError(events)
     }
     
     func testMoviesAreValidIfOneOrSomeFail() {
@@ -98,61 +110,60 @@ class TMDBModelTests: XCTestCase {
             self.customEndpoint(for: target, stubbedResourceName: "upcoming_page_2")
         }
         
-        self.runTestStubbing(endpointClosure: endpointClosure,
-                             expectationDescription: "received stub movies",
-                             onSuccess: {
-                                XCTAssertGreaterThan($0.count, 0)
-                                XCTAssertLessThan($0.count, 20)
-        }, onError: { _ in XCTFail() })
+        let events = self.simulatedEvents(endpointClosure: endpointClosure).map {
+            $0.map { $0.movies.count }
+        }
+        
+        let expected = [
+            next(self.initialTime, 19),
+            completed(self.initialTime)
+        ]
+        
+        XCTAssertEqual(events, expected)
     }
     
     func testImage() {
         let movieJSONString = "{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"poster_path\":\"\\/9E2y5Q7WlCVNEhP5GiVTjhEhx1o.jpg\",\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg\",\"adult\":false,\"release_date\":\"2017-08-17\"}"
         let movie = try! TMDBResults.decoder.decode(Movie.self, from: movieJSONString.data(using: .utf8)!)
-        
-        let thisExpectation = expectation(description: "received stub image")
         let imageWidth = 300
         
-        self.tmdbModel = TMDBModel(imageClosures: MoyaClosures<TMDBImage>(endpointClosure: MoyaProvider<TMDBImage>.defaultEndpointMapping,
-                                                                          stubClosure: MoyaProvider<TMDBImage>.immediatelyStub))
+        let tmdbModel = TMDBModel(imageClosures: MoyaClosures<TMDBImage>(endpointClosure: MoyaProvider<TMDBImage>.defaultEndpointMapping,
+                                                                         stubClosure: MoyaProvider<TMDBImage>.immediatelyStub))
         
-        self.tmdbModel.image(width: imageWidth, from: movie).subscribe { event in
-            switch event {
-            case let .success(image):
-                XCTAssertEqual(image?.size.width, CGFloat(imageWidth))
-            case let .error(error):
-                XCTFail(error.localizedDescription)
-            }
-            thisExpectation.fulfill()
-            }.disposed(by: self.disposeBag)
+        let results = scheduler.createObserver(Optional<UIImage>.self)
         
-        waitForExpectations(timeout: 1.0) { error in
-            XCTAssertNil(error)
+        scheduler.scheduleAt(self.initialTime) {
+            tmdbModel.image(width: imageWidth, from: movie).asObservable()
+                .subscribe(results).disposed(by: self.disposeBag)
         }
+        scheduler.start()
+        
+        let events = results.events.map {
+            $0.map { $0?.size.width }
+        }
+        
+        let expected = [
+            next(self.initialTime, Optional(CGFloat(imageWidth))),
+            completed(self.initialTime)
+        ]
+        
+        XCTAssertEqual(events, expected)
     }
     
-    private func runTestStubbing(endpointClosure: @escaping MoyaProvider<TMDB>.EndpointClosure = MoyaProvider<TMDB>.defaultEndpointMapping,
-                                 stubClosure: MoyaProvider<TMDB>.StubClosure = MoyaProvider<TMDB>.immediatelyStub,
-                                 expectationDescription: String,
-                                 onSuccess: (([Movie]) -> ())? = nil,
-                                 onError: ((Error) -> ())? = nil) {
-        self.tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: endpointClosure,
-                                                                      stubClosure: MoyaProvider<TMDB>.immediatelyStub))
-        let thisExpectation = expectation(description: expectationDescription)
-        
-        self.tmdbModel.upcomingMovies().subscribe { event in
-            switch event {
-            case let .success(results):
-                onSuccess?(results.movies)
-            case let .error(error):
-                onError?(error)
+    private func simulatedEvents(endpointClosure: @escaping MoyaProvider<TMDB>.EndpointClosure = MoyaProvider<TMDB>.defaultEndpointMapping,
+                                 stubClosure: MoyaProvider<TMDB>.StubClosure = MoyaProvider<TMDB>.immediatelyStub)
+        -> [Recorded<Event<TMDBResults>>] {
+            let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: endpointClosure,
+                                                                         stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+            let results = scheduler.createObserver(TMDBResults.self)
+            
+            scheduler.scheduleAt(self.initialTime) {
+                tmdbModel.upcomingMovies().asObservable()
+                    .subscribe(results).disposed(by: self.disposeBag)
             }
-            thisExpectation.fulfill()
-            }.disposed(by: self.disposeBag)
-        
-        waitForExpectations(timeout: 1.0) { error in
-            XCTAssertNil(error)
-        }
+            scheduler.start()
+            
+            return results.events
     }
     
     private func customEndpoint<T: TargetType>(for target: T, stubbedResourceName: String) -> Endpoint {
