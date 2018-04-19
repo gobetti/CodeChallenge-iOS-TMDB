@@ -15,7 +15,8 @@ extension ObservableType {
     /// - Returns: An observable sequence that contains the elements from the input sequence that
     ///            occur before and including the element at which the test no longer passes.
     func takeWhileInclusive(_ predicate: @escaping (E) throws -> Bool) -> Observable<E> {
-        return Observable.merge(self.takeWhile(predicate),
-                                self.skipWhile(predicate).take(1))
+        let sharedSelf = self.share()
+        return Observable.merge(sharedSelf.takeWhile(predicate),
+                                sharedSelf.skipWhile(predicate).take(1))
     }
 }
