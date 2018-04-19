@@ -59,4 +59,42 @@ class ObservableExtensionsTests: XCTestCase {
         ]
         XCTAssertEqual(results.events, expected)
     }
+    
+    func testTakeWhileInclusiveClearsResourcesOnSelfDisposal() {
+        let subject = PublishSubject<Void>()
+        let previousResourcesCount = RxSwift.Resources.total
+        
+        var count = 0
+        _ = subject
+            .do(onNext: {
+                count += 1
+            })
+            .takeWhileInclusive { count < 1 }
+            .subscribe()
+        subject.onNext(())
+        
+        XCTAssertEqual(previousResourcesCount, RxSwift.Resources.total)
+    }
+    
+    func testTakeWhileInclusiveClearsResourcesOnManualDisposal() {
+        let subject = PublishSubject<Void>()
+        let previousResourcesCount = RxSwift.Resources.total
+        
+        var count = 0
+        
+        func localScope() {
+            // scoped so that the `subscription` itself is not only disposed but also deallocated
+            let subscription = subject
+                .do(onNext: {
+                    count += 1
+                })
+                .takeWhileInclusive { count < 2 }
+                .subscribe()
+            subject.onNext(())
+            subscription.dispose()
+        }
+        localScope()
+        
+        XCTAssertEqual(previousResourcesCount, RxSwift.Resources.total)
+    }
 }

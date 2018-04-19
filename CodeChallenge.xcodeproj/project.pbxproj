@@ -271,7 +271,6 @@
 				3AA371D42067EB7400FBB61C /* Frameworks */,
 				3AA371D52067EB7400FBB61C /* Resources */,
 				39829955F42B118AB29ACA20 /* [CP] Embed Pods Frameworks */,
-				B522AB29DDA5B0D667452688 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -292,7 +291,6 @@
 				3ACB49E91DC2298D00C873DB /* Frameworks */,
 				3ACB49EA1DC2298D00C873DB /* Resources */,
 				43E20A466A19F61C262F1FED /* [CP] Embed Pods Frameworks */,
-				B960ED3D133F789B0B75AA73 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -462,36 +460,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B522AB29DDA5B0D667452688 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallengeTests/Pods-CodeChallengeTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		B960ED3D133F789B0B75AA73 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "[CP] Copy Pods Resources";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallenge/Pods-CodeChallenge-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		FB517C87A05FAAA266FBA768 /* [CP] Check Pods Manifest.lock */ = {
@@ -749,6 +717,7 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = CodeChallenge/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-D\" \"COCOAPODS\" -DTRACE_RESOURCES";
 				PRODUCT_BUNDLE_IDENTIFIER = com.xyz.CodeChallenge;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
