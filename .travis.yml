@@ -1,0 +1,12 @@
+language: swift
+osx_image: xcode9.3
+
+before_install:
+  - pod repo update
+  - git submodule update --init --recursive
+
+script:
+  - xcodebuild -scheme CodeChallenge -workspace CodeChallenge.xcworkspace -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=11.3' build test
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
