@@ -22,6 +22,7 @@ final class MovieDetailsViewController: UIViewController {
     // MARK: - UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.view.accessibilityIdentifier = "detailsView" // UI Test
         self.navigationController?.setNavigationBarHidden(false, animated: true)
     }
 }
