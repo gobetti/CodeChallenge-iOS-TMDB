@@ -5,6 +5,7 @@
 //  Created by Marcelo Gobetti on 3/18/18.
 //
 
+import Moya
 import RxCocoa
 import RxSwift
 
@@ -19,17 +20,32 @@ struct MoviesListViewModel {
         return self.tmdbModel.image(width: width, from: movie)
     }
     
+    // MARK: - Initializers
     init(pageRequester: Observable<Void>,
          searchRequester: Observable<String>,
+         tmdbModel: TMDBModel,
          debounceTime: RxTimeInterval = 0.5,
-         scheduler: SchedulerType = MainScheduler.instance,
-         tmdbModel: TMDBModel = TMDBModel()) {
+         scheduler: SchedulerType = MainScheduler.instance) {
         self.moviesDriver = MoviesListViewModel.createMoviesDriver(pageRequester: pageRequester,
                                                                    searchRequester: searchRequester,
                                                                    debounceTime: debounceTime,
                                                                    scheduler: scheduler,
                                                                    tmdbModel: tmdbModel)
         self.tmdbModel = tmdbModel
+    }
+    
+    init(pageRequester: Observable<Void>, searchRequester: Observable<String>, uiTesting: Bool = false) {
+        let tmdbModel: TMDBModel
+        if uiTesting {
+            tmdbModel = TMDBModel(imageClosures: MoyaClosures<TMDBImage>(endpointClosure: MoyaProvider<TMDBImage>.defaultEndpointMapping,
+                                                                         stubClosure: MoyaProvider<TMDBImage>.immediatelyStub),
+                                  moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
+                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        } else {
+            tmdbModel = TMDBModel()
+        }
+        
+        self.init(pageRequester: pageRequester, searchRequester: searchRequester, tmdbModel: tmdbModel)
     }
     
     // MARK: - Private static methods

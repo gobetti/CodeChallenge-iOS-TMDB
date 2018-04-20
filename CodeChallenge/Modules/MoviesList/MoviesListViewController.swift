@@ -11,13 +11,25 @@ import RxSwift
 
 final class MoviesListViewController: UIViewController {
     private let disposeBag = DisposeBag()
+    private let uiTesting: Bool
     private lazy var viewModel = MoviesListViewModel(pageRequester: self.pageRequester,
-                                                     searchRequester: self.searchRequester)
+                                                     searchRequester: self.searchRequester,
+                                                     uiTesting: self.uiTesting)
     
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
                                                   collectionViewLayout: MoviesListFlowLayout())
     private let searchController = UISearchController(searchResultsController: nil)
+    
+    // MARK: - Initializers
+    init(uiTesting: Bool = false) {
+        self.uiTesting = uiTesting
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
     
     // MARK: - UIViewController
     override func viewDidLoad() {

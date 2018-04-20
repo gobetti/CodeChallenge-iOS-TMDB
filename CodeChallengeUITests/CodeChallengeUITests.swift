@@ -12,7 +12,9 @@ class CodeChallengeUITests: XCTestCase {
         super.setUp()
         
         continueAfterFailure = false
-        XCUIApplication().launch()
+        let app = XCUIApplication()
+        app.launchArguments.append("--uitesting")
+        app.launch()
     }
     
     func testCellClickOpensDetailsPage() {

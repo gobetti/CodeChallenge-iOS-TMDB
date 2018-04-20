@@ -162,9 +162,9 @@ class MoviesListViewModelTests: XCTestCase {
         -> [Recorded<Event<Int>>] {
             let viewModel = MoviesListViewModel(pageRequester: pageRequester,
                                                 searchRequester: searchRequester,
+                                                tmdbModel: tmdbModel,
                                                 debounceTime: RxTimeInterval(debounceTime),
-                                                scheduler: self.scheduler,
-                                                tmdbModel: tmdbModel)
+                                                scheduler: self.scheduler)
             
             let results = scheduler.createObserver(Int.self)
             
