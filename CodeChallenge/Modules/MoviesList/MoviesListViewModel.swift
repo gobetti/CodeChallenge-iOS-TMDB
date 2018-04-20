@@ -69,9 +69,6 @@ struct MoviesListViewModel {
             .debounce(debounceTime, scheduler: scheduler)
             .distinctUntilChanged()
             .flatMapLatest { paginator($0) }
-            .asDriver(onErrorRecover: {
-                print("Unexpected error: \($0.localizedDescription)")
-                return Driver.just(MoviesCollection())
-            })
+            .asDriver(onErrorLogAndReturn: MoviesCollection())
     }
 }

@@ -5,6 +5,7 @@
 //  Created by Marcelo Gobetti on 3/29/18.
 //
 
+import RxCocoa
 import RxSwift
 
 extension ObservableType {
@@ -19,5 +20,14 @@ extension ObservableType {
             Observable.merge($0.takeWhile(predicate),
                              $0.skipWhile(predicate).take(1))
         }
+    }
+}
+
+extension ObservableConvertibleType {
+    func asDriver(onErrorLogAndReturn value: E) -> Driver<E> {
+        return asDriver(onErrorRecover: {
+            print("Unexpected error: \($0.localizedDescription)")
+            return Driver.just(value)
+        })
     }
 }

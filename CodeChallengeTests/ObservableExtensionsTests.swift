@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import CodeChallenge
+import RxCocoa
 import RxSwift
 import RxTest
 
@@ -20,6 +21,7 @@ class ObservableExtensionsTests: XCTestCase {
         self.scheduler = TestScheduler(initialClock: 0)
     }
     
+    // MARK: - takeWhileInclusive
     func testTakeWhileInclusiveIncludesFirstEventThatFailsConditionThenCompletes() {
         let results = scheduler.createObserver(Int.self)
         
@@ -96,5 +98,42 @@ class ObservableExtensionsTests: XCTestCase {
         localScope()
         
         XCTAssertEqual(previousResourcesCount, RxSwift.Resources.total)
+    }
+    
+    // MARK: - asDriver(onErrorJustReturn:)
+    func testDriverReturnsOriginalValueIfNoError() {
+        let results = scheduler.createObserver(Int.self)
+        let expectedValue = 1
+        
+        scheduler.scheduleAt(0) {
+            Observable.just(expectedValue)
+                .asDriver(onErrorLogAndReturn: expectedValue)
+                .drive(results).disposed(by: self.disposeBag)
+        }
+        scheduler.start()
+        
+        let expected = [
+            next(0, expectedValue),
+            completed(0)
+        ]
+        XCTAssertEqual(results.events, expected)
+    }
+    
+    func testDriverReturnsSpecifiedValueOnError() {
+        let results = scheduler.createObserver(Int.self)
+        let expectedValue = 1
+        
+        scheduler.scheduleAt(0) {
+            Observable<Int>.error(TestError.someError)
+                .asDriver(onErrorLogAndReturn: expectedValue)
+                .drive(results).disposed(by: self.disposeBag)
+        }
+        scheduler.start()
+        
+        let expected = [
+            next(0, expectedValue),
+            completed(0)
+        ]
+        XCTAssertEqual(results.events, expected)
     }
 }
