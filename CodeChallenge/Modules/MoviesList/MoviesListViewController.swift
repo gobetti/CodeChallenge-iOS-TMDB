@@ -9,6 +9,10 @@ import UIKit
 import RxCocoa
 import RxSwift
 
+private enum MoviesListViewConstants {
+    static let cellHeight: CGFloat = 55
+}
+
 final class MoviesListViewController: UIViewController {
     private let disposeBag = DisposeBag()
     private let uiTesting: Bool
@@ -19,7 +23,9 @@ final class MoviesListViewController: UIViewController {
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
                                                   collectionViewLayout: MoviesListFlowLayout())
+    private let loadingView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     private let searchController = UISearchController(searchResultsController: nil)
+    private let stackView = UIStackView(frame: CGRect.zero)
     
     // MARK: - Initializers
     init(uiTesting: Bool = false) {
@@ -45,18 +51,22 @@ final class MoviesListViewController: UIViewController {
     
     // MARK: - Private methods
     private func setupContent() {
-        self.collectionView.backgroundColor = .clear
-        self.collectionView.register(cellType: MoviesListCell.self)
-        self.view.addSubview(self.collectionView)
+        self.stackView.axis = .vertical
+        self.stackView.addArrangedSubview(self.collectionView)
+        self.stackView.addArrangedSubview(self.loadingView)
+        self.view.addSubview(self.stackView)
         
-        self.collectionView.translatesAutoresizingMaskIntoConstraints = false
+        self.stackView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            self.collectionView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
-            self.collectionView.topAnchor.constraint(equalTo: self.view.topAnchor),
-            self.collectionView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
-            self.collectionView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
+            self.stackView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            self.stackView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            self.stackView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            self.stackView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor)
             ])
         
+        // Movies
+        self.collectionView.backgroundColor = .clear
+        self.collectionView.register(cellType: MoviesListCell.self)
         self.viewModel.moviesDriver
             .drive(self.collectionView.rx.items(cellType: MoviesListCell.self)) { (_, movie, cell) in
                 cell.titleLabel.text = movie.originalTitle
@@ -65,6 +75,16 @@ final class MoviesListViewController: UIViewController {
                                                                            timeStyle: .none)
                 cell.image = self.viewModel.image(width: 300, from: movie)
             }.disposed(by: self.disposeBag)
+        
+        // Loading
+        self.loadingView.heightAnchor.constraint(equalToConstant: MoviesListViewConstants.cellHeight).isActive = true
+        self.viewModel.isLoadingDriver
+            .drive(onNext: { [unowned self] isLoading in
+                // TODO: RxAnimated
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.loadingView.isHidden = !isLoading
+                })
+            }).disposed(by: self.disposeBag)
     }
     
     // MARK: - Private methods
@@ -125,7 +145,7 @@ extension MoviesListViewController: UISearchResultsUpdating {
 
 private class MoviesListFlowLayout: UICollectionViewFlowLayout {
     override var itemSize: CGSize {
-        get { return CGSize(width: UIScreen.main.bounds.width, height: 55) }
+        get { return CGSize(width: UIScreen.main.bounds.width, height: MoviesListViewConstants.cellHeight) }
         set {}
     }
     

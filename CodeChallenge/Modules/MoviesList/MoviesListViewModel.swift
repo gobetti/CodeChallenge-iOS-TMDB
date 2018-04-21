@@ -14,6 +14,9 @@ struct MoviesListViewModel {
     
     private let disposeBag = DisposeBag()
     private let tmdbModel: TMDBModel
+    
+    // MARK: - Public
+    let isLoadingDriver: Driver<Bool>
     let moviesDriver: Driver<MoviesCollection>
     
     func image(width: Int, from movie: Movie) -> Single<UIImage?> {
@@ -26,11 +29,11 @@ struct MoviesListViewModel {
          tmdbModel: TMDBModel,
          debounceTime: RxTimeInterval = 0.5,
          scheduler: SchedulerType = MainScheduler.instance) {
-        self.moviesDriver = MoviesListViewModel.createMoviesDriver(pageRequester: pageRequester,
-                                                                   searchRequester: searchRequester,
-                                                                   debounceTime: debounceTime,
-                                                                   scheduler: scheduler,
-                                                                   tmdbModel: tmdbModel)
+        (self.moviesDriver, self.isLoadingDriver) = MoviesListViewModel.createDrivers(pageRequester: pageRequester,
+                                                                                      searchRequester: searchRequester,
+                                                                                      debounceTime: debounceTime,
+                                                                                      scheduler: scheduler,
+                                                                                      tmdbModel: tmdbModel)
         self.tmdbModel = tmdbModel
     }
     
@@ -54,12 +57,13 @@ struct MoviesListViewModel {
         return tmdbModel.search(query: query, page: page)
     }
     
-    private static func createMoviesDriver(pageRequester: Observable<Void>,
-                                           searchRequester: Observable<String>,
-                                           debounceTime: RxTimeInterval,
-                                           scheduler: SchedulerType,
-                                           tmdbModel: TMDBModel)
-        -> Driver<MoviesCollection> {
+    private static func createDrivers(pageRequester: Observable<Void>,
+                                      searchRequester: Observable<String>,
+                                      debounceTime: RxTimeInterval,
+                                      scheduler: SchedulerType,
+                                      tmdbModel: TMDBModel) -> (Driver<MoviesCollection>, Driver<Bool>) {
+        let isLoading = BehaviorRelay(value: false)
+        
         let paginator = { (query: String) -> Observable<MoviesCollection> in
             var fetchedPages = 0
             var nextPage: Int {
@@ -67,24 +71,30 @@ struct MoviesListViewModel {
             }
             
             return pageRequester.startWith(())
+                .do(onNext: { isLoading.accept(true) })
                 .flatMapFirst { _ in
-                    return MoviesListViewModel.createRequest(query: query, page: nextPage, tmdbModel: tmdbModel)
+                    MoviesListViewModel.createRequest(query: query, page: nextPage, tmdbModel: tmdbModel)
                         .do(onSuccess: { _ in fetchedPages += 1 })
                         .catchError {
                             print("Error: \($0)")
                             return Single.just(TMDBResults(movies: [], totalPages: Int.max))
                     }
-                }.takeWhileInclusive { fetchedPages < $0.totalPages }
+                }.do(onNext: { _ in isLoading.accept(false) })
+                .takeWhileInclusive { fetchedPages < $0.totalPages }
                 .map { $0.movies }
                 .scan(MoviesCollection()) { (accumulatedMovies, newMovies) -> MoviesCollection in
                     return accumulatedMovies + newMovies
             }
         }
         
-        return searchRequester.startWith("")
+        let moviesDriver = searchRequester.startWith("")
             .debounce(debounceTime, scheduler: scheduler)
             .distinctUntilChanged()
             .flatMapLatest { paginator($0) }
             .asDriver(onErrorLogAndReturn: MoviesCollection())
+        
+        let isLoadingDriver = isLoading.asDriver().distinctUntilChanged()
+        
+        return (moviesDriver, isLoadingDriver)
     }
 }

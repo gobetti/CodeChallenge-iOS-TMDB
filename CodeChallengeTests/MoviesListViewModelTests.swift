@@ -155,6 +155,41 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertEqual(events, expected)
     }
     
+    func testLoadingStartsOnRequestAndStopsWhenDone() {
+        let integerResponseDelay = 5
+        let responseDelay = TimeInterval(integerResponseDelay)
+        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
+                                                                     stubClosure: { _ in return .delayed(seconds: responseDelay) }))
+        
+        let pageRequester = Observable<Void>.never()
+        let searchRequester = Observable<String>.never()
+        let debounceTime = 2
+        
+        let viewModel = MoviesListViewModel(pageRequester: pageRequester,
+                                            searchRequester: searchRequester,
+                                            tmdbModel: tmdbModel,
+                                            debounceTime: RxTimeInterval(debounceTime),
+                                            scheduler: self.scheduler)
+        
+        let results = scheduler.createObserver(Bool.self)
+        
+        scheduler.scheduleAt(0) {
+            viewModel.isLoadingDriver
+                .drive(results).disposed(by: self.disposeBag)
+            
+            // At least 1 subscriber is needed:
+            viewModel.moviesDriver.drive().disposed(by: self.disposeBag)
+        }
+        scheduler.start()
+        
+        let expected = [
+            next(0, false),
+            next(debounceTime, true),
+            next(debounceTime + integerResponseDelay, false)
+        ]
+        XCTAssertEqual(results.events, expected)
+    }
+    
     private func simulatedMoviesCountEvents(pageRequester: Observable<Void>,
                                             searchRequester: Observable<String>,
                                             debounceTime: Int,
