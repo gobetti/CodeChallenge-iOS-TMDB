@@ -3,7 +3,6 @@ platform :ios, '9.0'
 use_frameworks!
 
 def shared_pods
-    pod 'Moya/RxSwift',             '~> 11.0'
     pod 'RxCocoa',                  '~> 4.0'
 end
 

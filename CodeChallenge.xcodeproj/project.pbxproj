@@ -11,6 +11,9 @@
 		3A244FD72075DE28004E5D16 /* MoviesListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A244FD42075DE27004E5D16 /* MoviesListViewModelTests.swift */; };
 		3A6680D620843FD500AA0461 /* XCTest+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A6680D520843FD500AA0461 /* XCTest+Extensions.swift */; };
 		3A6680DA208441F700AA0461 /* Recorded+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A6680D9208441F700AA0461 /* Recorded+Extensions.swift */; };
+		3A873236208EB733001747D9 /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A873235208EB733001747D9 /* Provider.swift */; };
+		3A873241208ECDC3001747D9 /* TargetType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A873240208ECDC3001747D9 /* TargetType.swift */; };
+		3A873247208ECEE7001747D9 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A873246208ECEE7001747D9 /* Response.swift */; };
 		3AA371D120674C7400FBB61C /* UICollectionView+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA371D020674C7400FBB61C /* UICollectionView+Extensions.swift */; };
 		3AA371DA2067EB7400FBB61C /* TMDBModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AA371D92067EB7400FBB61C /* TMDBModelTests.swift */; };
 		3AA371EE2068014B00FBB61C /* ColorCube.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3AA371EB2068012500FBB61C /* ColorCube.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
@@ -74,6 +77,9 @@
 		3A244FD42075DE27004E5D16 /* MoviesListViewModelTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoviesListViewModelTests.swift; sourceTree = "<group>"; };
 		3A6680D520843FD500AA0461 /* XCTest+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Extensions.swift"; sourceTree = "<group>"; };
 		3A6680D9208441F700AA0461 /* Recorded+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Recorded+Extensions.swift"; sourceTree = "<group>"; };
+		3A873235208EB733001747D9 /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
+		3A873240208ECDC3001747D9 /* TargetType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetType.swift; sourceTree = "<group>"; };
+		3A873246208ECEE7001747D9 /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		3AA371D020674C7400FBB61C /* UICollectionView+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UICollectionView+Extensions.swift"; sourceTree = "<group>"; };
 		3AA371D72067EB7400FBB61C /* CodeChallengeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodeChallengeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AA371D92067EB7400FBB61C /* TMDBModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TMDBModelTests.swift; sourceTree = "<group>"; };
@@ -142,6 +148,16 @@
 				3A6680D520843FD500AA0461 /* XCTest+Extensions.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		3A873230208EB6A5001747D9 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				3A873235208EB733001747D9 /* Provider.swift */,
+				3A873246208ECEE7001747D9 /* Response.swift */,
+				3A873240208ECDC3001747D9 /* TargetType.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 		3AA371D82067EB7400FBB61C /* CodeChallengeTests */ = {
@@ -224,6 +240,7 @@
 				3ACC946A1DC7E4DA001534ED /* TMDBModel.swift */,
 				3AA371F12068029600FBB61C /* Modules */,
 				3ACC8D1B205DD3750063B617 /* Extensions */,
+				3A873230208EB6A5001747D9 /* Network */,
 				3AEBC622205E0D9E005B747A /* Samples */,
 				3AE9EE311DD3B76000193D01 /* UI */,
 				3ACB49F61DC2298D00C873DB /* Assets.xcassets */,
@@ -461,18 +478,12 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallengeTests/Pods-CodeChallengeTests-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
-				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
@@ -489,17 +500,11 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallenge/Pods-CodeChallenge-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
-				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
-				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 			);
@@ -566,8 +571,11 @@
 			files = (
 				3ACB49F21DC2298D00C873DB /* MoviesListViewController.swift in Sources */,
 				3AE873CE20896182007C9688 /* Constants.swift in Sources */,
+				3A873241208ECDC3001747D9 /* TargetType.swift in Sources */,
+				3A873247208ECEE7001747D9 /* Response.swift in Sources */,
 				3ACC946B1DC7E4DA001534ED /* TMDBModel.swift in Sources */,
 				3AA371F72068042400FBB61C /* MovieDetailsViewController.swift in Sources */,
+				3A873236208EB733001747D9 /* Provider.swift in Sources */,
 				3AEBC62C205EB208005B747A /* MoviesListViewModel.swift in Sources */,
 				3AA371D120674C7400FBB61C /* UICollectionView+Extensions.swift in Sources */,
 				3ACB49F01DC2298D00C873DB /* AppDelegate.swift in Sources */,

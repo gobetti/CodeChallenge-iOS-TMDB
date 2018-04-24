@@ -7,38 +7,32 @@
 
 import UIKit
 import ColorCube
+import RxCocoa
 import RxSwift
 
 final class MoviesListCell: UICollectionViewCell {
     private var disposeBag = DisposeBag()
     private let colorCube = CCColorCube()
     
-    var image: Single<UIImage?>? {
+    var image: Driver<UIImage>? {
         didSet {
             guard let image = self.image else {
                 self.imageView.setImageAnimated(nil)
                 return
             }
             
-            image.subscribe { event in
-                switch event {
-                case let .success(image):
-                    assert(Thread.isMainThread)
-                    self.imageView.setImageAnimated(image)
-                    
-                    guard let image = image else { return }
-                    if let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first {
-                        self.titleLabel.attributedText = NSAttributedString(string: self.titleLabel.text ?? "",
-                                                                            attributes: [.backgroundColor: color])
-                    }
-                    if let color = self.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first {
-                        self.releaseDateLabel.attributedText = NSAttributedString(string: self.releaseDateLabel.text ?? "",
-                                                                                  attributes: [.backgroundColor: color])
-                    }
-                case let .error(error):
-                    print("Error fetching image: \(error)")
+            image.drive(onNext: { image in
+                self.imageView.setImageAnimated(image)
+                
+                if let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first {
+                    self.titleLabel.attributedText = NSAttributedString(string: self.titleLabel.text ?? "",
+                                                                        attributes: [.backgroundColor: color])
                 }
-                }.disposed(by: self.disposeBag)
+                if let color = self.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first {
+                    self.releaseDateLabel.attributedText = NSAttributedString(string: self.releaseDateLabel.text ?? "",
+                                                                              attributes: [.backgroundColor: color])
+                }
+            }).disposed(by: self.disposeBag)
         }
     }
     

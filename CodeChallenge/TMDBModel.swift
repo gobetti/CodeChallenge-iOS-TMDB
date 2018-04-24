@@ -5,7 +5,6 @@
 //  Created by Marcelo Gobetti on 10/31/16.
 //
 
-import Moya
 import RxSwift
 
 enum TMDBModelError: Error {
@@ -13,26 +12,24 @@ enum TMDBModelError: Error {
 }
 
 struct TMDBModel {
-    typealias ImageProvider = MoyaProvider<TMDBImage>
-    typealias MoviesProvider = MoyaProvider<TMDB>
+    typealias ImageProvider = Provider<TMDBImage>
+    typealias MoviesProvider = Provider<TMDB>
     
     private let imageProvider: ImageProvider
     private let moviesProvider: MoviesProvider
     
-    init(imageClosures: MoyaClosures<TMDBImage> = MoyaClosures<TMDBImage>(),
-         moviesClosures: MoyaClosures<TMDB> = MoyaClosures<TMDB>()) {
-        self.imageProvider = ImageProvider(endpointClosure: imageClosures.endpointClosure,
-                                           stubClosure: imageClosures.stubClosure)
-        self.moviesProvider = MoviesProvider(endpointClosure: moviesClosures.endpointClosure,
-                                             stubClosure: moviesClosures.stubClosure)
+    // TODO: DI for stubbing
+    init() {
+        self.imageProvider = ImageProvider()
+        self.moviesProvider = MoviesProvider()
     }
     
-    func image(width: Int, from movie: Movie) -> Single<Image?> {
+    func image(width: Int, from movie: Movie) -> Single<UIImage> {
         guard movie.imagePath != nil else {
             return .error(TMDBModelError.missingImagePath)
         }
         
-        return self.imageProvider.rx
+        return self.imageProvider
             .request(.movie(movie: movie, imageWidth: width))
             .mapImage()
     }
@@ -47,22 +44,11 @@ struct TMDBModel {
     
     // Maps into [Movie] the "results" part of the JSON returned by the API
     private func requestMovies(_ type: TMDB) -> Single<TMDBResults> {
-        return self.moviesProvider.rx
+        return self.moviesProvider
             .request(type)
             .map { response -> TMDBResults in
                 return try TMDBResults.decoder.decode(TMDBResults.self, from: response.data)
             }
-    }
-}
-
-struct MoyaClosures<T: TargetType> {
-    let endpointClosure: MoyaProvider<T>.EndpointClosure
-    let stubClosure: MoyaProvider<T>.StubClosure
-    
-    init(endpointClosure: @escaping MoyaProvider<T>.EndpointClosure = MoyaProvider<T>.defaultEndpointMapping,
-         stubClosure: @escaping MoyaProvider<T>.StubClosure = MoyaProvider<T>.neverStub) {
-        self.endpointClosure = endpointClosure
-        self.stubClosure = stubClosure
     }
 }
 
@@ -89,7 +75,7 @@ extension TMDB: TargetType {
         }
     }
     
-    public var method: Moya.Method {
+    public var method: HTTPMethod {
         return .get
     }
     
@@ -106,15 +92,14 @@ extension TMDB: TargetType {
     }
     
     public var task: Task {
-        return .requestParameters(parameters: self.parameters,
-                                  encoding: URLEncoding())
+        return .requestParameters(parameters: self.parameters)
     }
     
     public var headers: [String : String]? {
         return nil
     }
     
-    private var parameters: [String: Any] {
+    private var parameters: [String: String] {
         let defaultParameters = ["api_key" : api_key]
         var parameters = defaultParameters
         
@@ -142,7 +127,7 @@ extension TMDBImage: TargetType {
         }
     }
     
-    public var method: Moya.Method {
+    public var method: HTTPMethod {
         return .get
     }
     

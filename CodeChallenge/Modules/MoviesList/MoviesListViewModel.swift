@@ -5,7 +5,6 @@
 //  Created by Marcelo Gobetti on 3/18/18.
 //
 
-import Moya
 import RxCocoa
 import RxSwift
 
@@ -19,7 +18,7 @@ struct MoviesListViewModel {
     let isLoadingDriver: Driver<Bool>
     let moviesDriver: Driver<MoviesCollection>
     
-    func image(width: Int, from movie: Movie) -> Single<UIImage?> {
+    func image(width: Int, from movie: Movie) -> Single<UIImage> {
         return self.tmdbModel.image(width: width, from: movie)
     }
     
@@ -40,10 +39,8 @@ struct MoviesListViewModel {
     init(pageRequester: Observable<Void>, searchRequester: Observable<String>, uiTesting: Bool = false) {
         let tmdbModel: TMDBModel
         if uiTesting {
-            tmdbModel = TMDBModel(imageClosures: MoyaClosures<TMDBImage>(endpointClosure: MoyaProvider<TMDBImage>.defaultEndpointMapping,
-                                                                         stubClosure: MoyaProvider<TMDBImage>.immediatelyStub),
-                                  moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
-                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+            // TODO: pass stubs
+            tmdbModel = TMDBModel()
         } else {
             tmdbModel = TMDBModel()
         }
