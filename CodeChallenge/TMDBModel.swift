@@ -18,10 +18,10 @@ struct TMDBModel {
     private let imageProvider: ImageProvider
     private let moviesProvider: MoviesProvider
     
-    // TODO: DI for stubbing
-    init() {
-        self.imageProvider = ImageProvider()
-        self.moviesProvider = MoviesProvider()
+    init(stubBehavior: StubBehavior = .never,
+         scheduler: SchedulerType = ConcurrentDispatchQueueScheduler(qos: .background)) {
+        self.imageProvider = ImageProvider(stubBehavior: stubBehavior, scheduler: scheduler)
+        self.moviesProvider = MoviesProvider(stubBehavior: stubBehavior, scheduler: scheduler)
     }
     
     func image(width: Int, from movie: Movie) -> Single<UIImage> {

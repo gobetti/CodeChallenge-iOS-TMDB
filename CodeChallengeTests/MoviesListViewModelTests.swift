@@ -7,7 +7,6 @@
 
 import XCTest
 @testable import CodeChallenge
-import Moya // may be removed if we decide to have our own mock without going through Moya
 import RxSwift
 import RxTest
 
@@ -31,8 +30,7 @@ class MoviesListViewModelTests: XCTestCase {
     }
     
     func testFirstPageIsReturnedBeforeAnyUserEvent() {
-        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
-                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        let tmdbModel = self.makeTMDBModel()
         
         let pageRequester = Observable<Void>.never()
         let searchRequester = Observable<String>.never()
@@ -49,13 +47,8 @@ class MoviesListViewModelTests: XCTestCase {
     }
     
     func testEmptyListIsReturnedOnNetworkError() {
-        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
-            return Endpoint(url: target.baseURL.absoluteString, sampleResponseClosure: {
-                return .networkError(TestError.someError as NSError)
-            }, method: .get, task: target.task, httpHeaderFields: [:])
-        }
-        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: endpointClosure,
-                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        let stub = Stub.error(TestError.someError)
+        let tmdbModel = self.makeTMDBModel(stubBehavior: .immediate(stub: stub))
         
         let pageRequester = Observable<Void>.never()
         let searchRequester = Observable<String>.never()
@@ -72,8 +65,7 @@ class MoviesListViewModelTests: XCTestCase {
     }
     
     func testSearchResultsReplaceUpcomingMoviesWhenUserSearches() {
-        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
-                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        let tmdbModel = self.makeTMDBModel()
         
         let searchTime = 100
         let pageRequester = Observable<Void>.never()
@@ -96,8 +88,7 @@ class MoviesListViewModelTests: XCTestCase {
     }
     
     func testUpcomingMoviesReplaceSearchResultsWhenUserClearsQuery() {
-        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
-                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        let tmdbModel = self.makeTMDBModel()
         
         let searchTime = 100
         let searchClearTime = 200
@@ -128,8 +119,7 @@ class MoviesListViewModelTests: XCTestCase {
     }
     
     func testSecondPageIsAppendedWhenUserPaginates() {
-        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
-                                                                     stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+        let tmdbModel = self.makeTMDBModel()
         
         let paginationTime = 100
         let pageRequester = scheduler.createHotObservable([
@@ -158,8 +148,7 @@ class MoviesListViewModelTests: XCTestCase {
     func testLoadingStartsOnRequestAndStopsWhenDone() {
         let integerResponseDelay = 5
         let responseDelay = TimeInterval(integerResponseDelay)
-        let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: MoyaProvider<TMDB>.defaultEndpointMapping,
-                                                                     stubClosure: { _ in return .delayed(seconds: responseDelay) }))
+        let tmdbModel = self.makeTMDBModel(stubBehavior: .delayed(time: responseDelay, stub: .default))
         
         let pageRequester = Observable<Void>.never()
         let searchRequester = Observable<String>.never()
@@ -188,6 +177,10 @@ class MoviesListViewModelTests: XCTestCase {
             next(debounceTime + integerResponseDelay, false)
         ]
         XCTAssertEqual(results.events, expected)
+    }
+    
+    private func makeTMDBModel(stubBehavior: StubBehavior = .immediate(stub: .default)) -> TMDBModel {
+        return TMDBModel(stubBehavior: stubBehavior, scheduler: self.scheduler)
     }
     
     private func simulatedMoviesCountEvents(pageRequester: Observable<Void>,

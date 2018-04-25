@@ -7,7 +7,6 @@
 
 import XCTest
 @testable import CodeChallenge
-import Moya
 import RxSwift
 import RxTest
 
@@ -50,11 +49,8 @@ class TMDBModelTests: XCTestCase {
         let backdropPath = "/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg"
         XCTAssertNotEqual(posterPath, backdropPath)
         
-        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
-            self.customEndpoint(for: target, stubbedResponse: "{\"results\":[{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"poster_path\":\"\\\(posterPath)\",\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\\(backdropPath)\",\"adult\":false,\"release_date\":\"2017-08-17\"}],\"page\":1,\"total_results\":185,\"dates\":{\"maximum\":\"2017-10-04\",\"minimum\":\"2017-09-16\"},\"total_pages\":10}")
-        }
-        
-        let events = self.simulatedEvents(endpointClosure: endpointClosure).map {
+        let stub = self.customSuccessStub(stubbedResponse: "{\"results\":[{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"poster_path\":\"\\\(posterPath)\",\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\\(backdropPath)\",\"adult\":false,\"release_date\":\"2017-08-17\"}],\"page\":1,\"total_results\":185,\"dates\":{\"maximum\":\"2017-10-04\",\"minimum\":\"2017-09-16\"},\"total_pages\":10}")
+        let events = self.simulatedEvents(stubBehavior: .immediate(stub: stub)).map {
             $0.map { $0.movies.first?.imagePath }
         }
         
@@ -68,12 +64,8 @@ class TMDBModelTests: XCTestCase {
     
     func testMovieReadsBackdropWhenPosterIsUnavailable() {
         let backdropPath = "/tcheoA2nPATCm2vvXw2hVQoaEFD.jpg"
-        
-        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
-            self.customEndpoint(for: target, stubbedResponse: "{\"results\":[{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\\(backdropPath)\",\"adult\":false,\"release_date\":\"2017-08-17\"}],\"page\":1,\"total_results\":185,\"dates\":{\"maximum\":\"2017-10-04\",\"minimum\":\"2017-09-16\"},\"total_pages\":10}")
-        }
-        
-        let events = self.simulatedEvents(endpointClosure: endpointClosure).map {
+        let stub = self.customSuccessStub(stubbedResponse: "{\"results\":[{\"vote_count\":213,\"id\":346364,\"video\":false,\"vote_average\":7.2,\"title\":\"It\",\"popularity\":139.429699,\"original_language\":\"en\",\"original_title\":\"It\",\"genre_ids\":[27],\"backdrop_path\":\"\\\(backdropPath)\",\"adult\":false,\"release_date\":\"2017-08-17\"}],\"page\":1,\"total_results\":185,\"dates\":{\"maximum\":\"2017-10-04\",\"minimum\":\"2017-09-16\"},\"total_pages\":10}")
+        let events = self.simulatedEvents(stubBehavior: .immediate(stub: stub)).map {
             $0.map { $0.movies.first?.imagePath }
         }
         
@@ -86,22 +78,14 @@ class TMDBModelTests: XCTestCase {
     }
     
     func testUpcomingMoviesErrorsOutOnNetworkError() {
-        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
-            return Endpoint(url: target.baseURL.absoluteString, sampleResponseClosure: {
-                return .networkError(TestError.someError as NSError)
-            }, method: .get, task: target.task, httpHeaderFields: [:])
-        }
-        
-        let events = self.simulatedEvents(endpointClosure: endpointClosure)
+        let stub = Stub.error(TestError.someError)
+        let events = self.simulatedEvents(stubBehavior: .immediate(stub: stub))
         XCTAssertThrowsError(events)
     }
     
     func testUpcomingMoviesErrorsOutOnEmptyResponse() {
-        let endpointClosure: MoyaProvider<TMDB>.EndpointClosure = { target in
-            self.customEndpoint(for: target, stubbedResponse: "")
-        }
-        
-        let events = self.simulatedEvents(endpointClosure: endpointClosure)
+        let stub = self.customSuccessStub(stubbedResponse: "")
+        let events = self.simulatedEvents(stubBehavior: .immediate(stub: stub))
         XCTAssertThrowsError(events)
     }
     
@@ -123,10 +107,8 @@ class TMDBModelTests: XCTestCase {
         let movie = try! TMDBResults.decoder.decode(Movie.self, from: movieJSONString.data(using: .utf8)!)
         let imageWidth = 300
         
-        let tmdbModel = TMDBModel(imageClosures: MoyaClosures<TMDBImage>(endpointClosure: MoyaProvider<TMDBImage>.defaultEndpointMapping,
-                                                                         stubClosure: MoyaProvider<TMDBImage>.immediatelyStub))
-        
-        let results = scheduler.createObserver(Optional<UIImage>.self)
+        let tmdbModel = TMDBModel(stubBehavior: .immediate(stub: .default), scheduler: scheduler)
+        let results = scheduler.createObserver(UIImage.self)
         
         scheduler.scheduleAt(self.initialTime) {
             tmdbModel.image(width: imageWidth, from: movie).asObservable()
@@ -135,11 +117,11 @@ class TMDBModelTests: XCTestCase {
         scheduler.start()
         
         let events = results.events.map {
-            $0.map { $0?.size.width }
+            $0.map { $0.size.width }
         }
         
         let expected = [
-            next(self.initialTime, Optional(CGFloat(imageWidth))),
+            next(self.initialTime, CGFloat(imageWidth)),
             completed(self.initialTime)
         ]
         
@@ -147,11 +129,9 @@ class TMDBModelTests: XCTestCase {
     }
     
     private func simulatedEvents(page: Int = 1,
-                                 endpointClosure: @escaping MoyaProvider<TMDB>.EndpointClosure = MoyaProvider<TMDB>.defaultEndpointMapping,
-                                 stubClosure: MoyaProvider<TMDB>.StubClosure = MoyaProvider<TMDB>.immediatelyStub)
+                                 stubBehavior: StubBehavior = .immediate(stub: .default))
         -> [Recorded<Event<TMDBResults>>] {
-            let tmdbModel = TMDBModel(moviesClosures: MoyaClosures<TMDB>(endpointClosure: endpointClosure,
-                                                                         stubClosure: MoyaProvider<TMDB>.immediatelyStub))
+            let tmdbModel = TMDBModel(stubBehavior: stubBehavior, scheduler: scheduler)
             let results = scheduler.createObserver(TMDBResults.self)
             
             scheduler.scheduleAt(self.initialTime) {
@@ -163,11 +143,7 @@ class TMDBModelTests: XCTestCase {
             return results.events
     }
     
-    private func customEndpoint<T: TargetType>(for target: T, stubbedResponse: String) -> Endpoint {
-        return Endpoint(url: target.baseURL.absoluteString,
-                        sampleResponseClosure: { .networkResponse(200, stubbedResponse.data(using: .utf8)!) },
-                        method: .get,
-                        task: target.task,
-                        httpHeaderFields: [:])
+    private func customSuccessStub(stubbedResponse: String) -> Stub {
+        return Stub.success(Response(200, stubbedResponse.data(using: .utf8)!))
     }
 }

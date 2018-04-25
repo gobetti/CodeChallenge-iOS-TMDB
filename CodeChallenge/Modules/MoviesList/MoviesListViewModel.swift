@@ -39,8 +39,7 @@ struct MoviesListViewModel {
     init(pageRequester: Observable<Void>, searchRequester: Observable<String>, uiTesting: Bool = false) {
         let tmdbModel: TMDBModel
         if uiTesting {
-            // TODO: pass stubs
-            tmdbModel = TMDBModel()
+            tmdbModel = TMDBModel(stubBehavior: .immediate(stub: .default), scheduler: MainScheduler.instance)
         } else {
             tmdbModel = TMDBModel()
         }
