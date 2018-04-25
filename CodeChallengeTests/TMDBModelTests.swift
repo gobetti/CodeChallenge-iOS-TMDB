@@ -10,10 +10,6 @@ import XCTest
 import RxSwift
 import RxTest
 
-enum TestError: Error {
-    case someError
-}
-
 class TMDBModelTests: XCTestCase {
     var disposeBag: DisposeBag!
     var scheduler: TestScheduler!

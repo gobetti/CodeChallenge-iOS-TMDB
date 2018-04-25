@@ -117,16 +117,11 @@ private struct MockURLSession: URLSessionProtocol {
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         let task = MockURLSessionDataTask()
         
-        guard let url = request.url else {
-            print("Invalid URL when mocking URLSession")
-            return task
-        }
-        
         let completion = {
             switch self.stub {
             case .success(let response):
                 completionHandler(response.data,
-                                  HTTPURLResponse(url: url,
+                                  HTTPURLResponse(url: request.url!,
                                                   statusCode: response.statusCode,
                                                   httpVersion: nil,
                                                   headerFields: nil),

@@ -25,6 +25,7 @@
 		3AB3B9EC206C9F6D000D4EC0 /* ObservableType+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AB3B9EB206C9F6D000D4EC0 /* ObservableType+Extensions.swift */; };
 		3AC2E12D20882FC8006D7E9A /* ObservableExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC2E12C20882FC8006D7E9A /* ObservableExtensionsTests.swift */; };
 		3AC2E13E20884EEC006D7E9A /* MovieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC2E13D20884EEC006D7E9A /* MovieTests.swift */; };
+		3AC93D4520900F4100C36BBD /* ProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AC93D4420900F4100C36BBD /* ProviderTests.swift */; };
 		3ACB49F01DC2298D00C873DB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACB49EF1DC2298D00C873DB /* AppDelegate.swift */; };
 		3ACB49F21DC2298D00C873DB /* MoviesListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ACB49F11DC2298D00C873DB /* MoviesListViewController.swift */; };
 		3ACB49F71DC2298D00C873DB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3ACB49F61DC2298D00C873DB /* Assets.xcassets */; };
@@ -94,6 +95,7 @@
 		3AB3B9EB206C9F6D000D4EC0 /* ObservableType+Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObservableType+Extensions.swift"; sourceTree = "<group>"; };
 		3AC2E12C20882FC8006D7E9A /* ObservableExtensionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObservableExtensionsTests.swift; sourceTree = "<group>"; };
 		3AC2E13D20884EEC006D7E9A /* MovieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieTests.swift; sourceTree = "<group>"; };
+		3AC93D4420900F4100C36BBD /* ProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProviderTests.swift; sourceTree = "<group>"; };
 		3ACB49EC1DC2298D00C873DB /* CodeChallenge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CodeChallenge.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3ACB49EF1DC2298D00C873DB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		3ACB49F11DC2298D00C873DB /* MoviesListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoviesListViewController.swift; sourceTree = "<group>"; };
@@ -170,6 +172,7 @@
 				3A244FD42075DE27004E5D16 /* MoviesListViewModelTests.swift */,
 				3AC2E12C20882FC8006D7E9A /* ObservableExtensionsTests.swift */,
 				3AC2E13D20884EEC006D7E9A /* MovieTests.swift */,
+				3AC93D4420900F4100C36BBD /* ProviderTests.swift */,
 				3AA371D92067EB7400FBB61C /* TMDBModelTests.swift */,
 				3AA371DB2067EB7400FBB61C /* Info.plist */,
 			);
@@ -559,6 +562,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AC93D4520900F4100C36BBD /* ProviderTests.swift in Sources */,
 				3AC2E12D20882FC8006D7E9A /* ObservableExtensionsTests.swift in Sources */,
 				3AA371DA2067EB7400FBB61C /* TMDBModelTests.swift in Sources */,
 				3AC2E13E20884EEC006D7E9A /* MovieTests.swift in Sources */,
