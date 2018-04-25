@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="ipad9_7" orientation="landscape">
+    <device id="ipad9_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
-        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -19,75 +18,44 @@
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="iN0-l3-epB">
-            <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+            <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sBR-LH-jX6">
-                    <rect key="frame" x="0.0" y="20" width="1024" height="748"/>
+                    <rect key="frame" x="0.0" y="20" width="768" height="1004"/>
                     <subviews>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lZA-au-JGT" userLabel="Content View">
-                            <rect key="frame" x="8" y="8" width="1008" height="671.5"/>
+                        <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="daL-Vs-uUu">
+                            <rect key="frame" x="8" y="8" width="752" height="496"/>
                             <subviews>
+                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ttw-OF-sDS">
+                                    <rect key="frame" x="0.0" y="0.0" width="372" height="496"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" secondItem="Ttw-OF-sDS" secondAttribute="height" multiplier="3:4" id="8b4-ZN-ZB0"/>
+                                    </constraints>
+                                </imageView>
                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="natural" selectable="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HnX-LJ-2AP">
-                                    <rect key="frame" x="512" y="0.0" width="496" height="671.5"/>
+                                    <rect key="frame" x="380" y="0.0" width="372" height="496"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                                 </textView>
-                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Ttw-OF-sDS">
-                                    <rect key="frame" x="0.0" y="0.0" width="504" height="671.5"/>
-                                    <constraints>
-                                        <constraint firstAttribute="width" secondItem="Ttw-OF-sDS" secondAttribute="height" multiplier="3:4" id="8b4-ZN-ZB0"/>
-                                    </constraints>
-                                </imageView>
                             </subviews>
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstItem="HnX-LJ-2AP" firstAttribute="leading" secondItem="lZA-au-JGT" secondAttribute="leading" id="1jg-Ht-YH6"/>
-                                <constraint firstItem="Ttw-OF-sDS" firstAttribute="top" secondItem="lZA-au-JGT" secondAttribute="top" id="3bd-wk-eSD"/>
-                                <constraint firstItem="HnX-LJ-2AP" firstAttribute="top" secondItem="Ttw-OF-sDS" secondAttribute="bottom" constant="8" id="A0R-gF-mub"/>
-                                <constraint firstAttribute="trailing" secondItem="HnX-LJ-2AP" secondAttribute="trailing" id="By4-kB-NY2"/>
-                                <constraint firstItem="Ttw-OF-sDS" firstAttribute="centerX" secondItem="lZA-au-JGT" secondAttribute="centerX" id="Fq0-Ss-swo"/>
-                                <constraint firstItem="HnX-LJ-2AP" firstAttribute="leading" secondItem="Ttw-OF-sDS" secondAttribute="trailing" constant="8" id="LTY-fu-kVU"/>
-                                <constraint firstItem="Ttw-OF-sDS" firstAttribute="bottom" secondItem="HnX-LJ-2AP" secondAttribute="bottom" id="Q5R-3C-ZP3"/>
-                                <constraint firstItem="Ttw-OF-sDS" firstAttribute="width" secondItem="lZA-au-JGT" secondAttribute="width" multiplier="0.5" priority="751" id="R73-JG-O86"/>
-                                <constraint firstItem="Ttw-OF-sDS" firstAttribute="leading" secondItem="lZA-au-JGT" secondAttribute="leading" id="WsX-dI-2ib"/>
-                                <constraint firstAttribute="bottom" secondItem="HnX-LJ-2AP" secondAttribute="bottom" id="YQY-uu-zCp"/>
-                                <constraint firstItem="HnX-LJ-2AP" firstAttribute="top" secondItem="lZA-au-JGT" secondAttribute="top" id="dMr-qM-htL"/>
-                            </constraints>
-                            <variation key="default">
-                                <mask key="constraints">
-                                    <exclude reference="Fq0-Ss-swo"/>
-                                    <exclude reference="1jg-Ht-YH6"/>
-                                    <exclude reference="A0R-gF-mub"/>
-                                </mask>
-                            </variation>
-                            <variation key="heightClass=regular-widthClass=compact">
-                                <mask key="constraints">
-                                    <include reference="Fq0-Ss-swo"/>
-                                    <exclude reference="Q5R-3C-ZP3"/>
-                                    <exclude reference="WsX-dI-2ib"/>
-                                    <include reference="1jg-Ht-YH6"/>
-                                    <include reference="A0R-gF-mub"/>
-                                    <exclude reference="LTY-fu-kVU"/>
-                                    <exclude reference="dMr-qM-htL"/>
-                                </mask>
-                            </variation>
-                        </view>
+                            <variation key="heightClass=regular-widthClass=compact" axis="vertical"/>
+                        </stackView>
                     </subviews>
                     <constraints>
-                        <constraint firstItem="lZA-au-JGT" firstAttribute="leading" secondItem="sBR-LH-jX6" secondAttribute="leading" constant="8" id="K7S-LG-mpZ"/>
-                        <constraint firstItem="lZA-au-JGT" firstAttribute="top" secondItem="sBR-LH-jX6" secondAttribute="top" constant="8" id="K9N-UD-kPa"/>
-                        <constraint firstAttribute="bottom" secondItem="lZA-au-JGT" secondAttribute="bottom" constant="8" id="MOY-kE-Q6T"/>
-                        <constraint firstAttribute="trailing" secondItem="lZA-au-JGT" secondAttribute="trailing" constant="8" id="VCi-ca-bvf"/>
+                        <constraint firstAttribute="trailing" secondItem="daL-Vs-uUu" secondAttribute="trailing" constant="8" id="13q-8r-QcN"/>
+                        <constraint firstItem="daL-Vs-uUu" firstAttribute="top" secondItem="sBR-LH-jX6" secondAttribute="top" constant="8" id="isD-RA-rVU"/>
+                        <constraint firstItem="daL-Vs-uUu" firstAttribute="leading" secondItem="sBR-LH-jX6" secondAttribute="leading" constant="8" id="mH6-4r-N5i"/>
+                        <constraint firstAttribute="bottom" secondItem="daL-Vs-uUu" secondAttribute="bottom" constant="8" id="s45-ig-cIE"/>
                     </constraints>
                 </scrollView>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="lZA-au-JGT" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="8" id="4Tz-Q5-LNX"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="lZA-au-JGT" secondAttribute="trailing" constant="8" id="6Kl-uG-wzH"/>
+                <constraint firstItem="daL-Vs-uUu" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="8" id="GCe-Kh-xu6"/>
+                <constraint firstItem="daL-Vs-uUu" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" constant="-8" id="PHA-0M-pPf"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="sBR-LH-jX6" secondAttribute="trailing" id="TSJ-CK-gEY"/>
                 <constraint firstItem="sBR-LH-jX6" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="aZ3-OD-akD"/>
                 <constraint firstItem="sBR-LH-jX6" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="tUh-vO-i7Z"/>
