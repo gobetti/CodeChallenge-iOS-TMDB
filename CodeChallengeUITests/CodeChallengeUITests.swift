@@ -49,4 +49,12 @@ class CodeChallengeUITests: XCTestCase {
         XCTAssertFalse(app.navigationBars.firstMatch.exists,
                        "The navigation bar should auto hide again on swipe")
     }
+    
+    func testScrollToBottomLoadsMoreItems() {
+        let app = XCUIApplication()
+        let previousCellsCount = app.collectionViews.cells.count
+        
+        app.collectionViews.cells.otherElements.firstMatch.swipeUp()
+        XCTAssertGreaterThan(app.collectionViews.cells.count, previousCellsCount)
+    }
 }

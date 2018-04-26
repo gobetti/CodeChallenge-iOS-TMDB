@@ -147,13 +147,29 @@ extension MoviesListViewController: UISearchResultsUpdating {
 }
 
 private class MoviesListFlowLayout: UICollectionViewFlowLayout {
+    private let itemsPerRow: CGFloat = {
+        return UIDevice.current.userInterfaceIdiom == .pad ? 2 : 1
+    }()
+    private let minimumSpacingBetweenItems: CGFloat = 1
+    private var itemWidth: CGFloat {
+        let gaps = self.itemsPerRow - 1
+        return UIScreen.main.bounds.width / self.itemsPerRow
+            - gaps * self.minimumSpacingBetweenItems
+    }
+    
+    // MARK: - UICollectionViewFlowLayout overrides
     override var itemSize: CGSize {
-        get { return CGSize(width: UIScreen.main.bounds.width, height: MoviesListViewConstants.cellHeight) }
+        get { return CGSize(width: self.itemWidth, height: MoviesListViewConstants.cellHeight) }
+        set {}
+    }
+    
+    override var minimumInteritemSpacing: CGFloat {
+        get { return self.minimumSpacingBetweenItems }
         set {}
     }
     
     override var minimumLineSpacing: CGFloat {
-        get { return 1 }
+        get { return self.minimumSpacingBetweenItems }
         set {}
     }
 }
