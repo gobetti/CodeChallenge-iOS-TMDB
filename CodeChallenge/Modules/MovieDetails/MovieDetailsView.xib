@@ -13,6 +13,8 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MovieDetailsViewController" customModule="CodeChallenge" customModuleProvider="target">
             <connections>
+                <outlet property="overviewTextView" destination="HnX-LJ-2AP" id="lAt-AF-ou7"/>
+                <outlet property="posterImageView" destination="Ttw-OF-sDS" id="tu4-JJ-9Gv"/>
                 <outlet property="view" destination="iN0-l3-epB" id="3Iz-u7-3l6"/>
             </connections>
         </placeholder>

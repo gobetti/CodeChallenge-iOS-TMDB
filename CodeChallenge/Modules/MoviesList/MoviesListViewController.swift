@@ -105,8 +105,11 @@ final class MoviesListViewController: UIViewController {
                     return
                 }
                 
-                navigationController.pushViewController(MovieDetailsViewController(movie: selectedMovie),
-                                                        animated: true)
+                navigationController.pushViewController(
+                    MovieDetailsViewController(title: selectedMovie.originalTitle,
+                                               image: self.viewModel.image(width: 500, from: selectedMovie),
+                                               overview: selectedMovie.overview),
+                    animated: true)
             }.disposed(by: self.disposeBag)
     }
     

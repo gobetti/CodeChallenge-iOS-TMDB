@@ -13,6 +13,7 @@ struct Movie: Decodable {
     private let backdropPath: String?
     
     let originalTitle: String
+    let overview: String
     let genreIds: [Int]
     let releaseDate: Date
     

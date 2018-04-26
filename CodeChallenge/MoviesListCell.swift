@@ -21,7 +21,7 @@ final class MoviesListCell: UICollectionViewCell {
                 return
             }
             
-            image.drive(onNext: { image in
+            image.drive(onNext: { [unowned self] image in
                 self.imageView.setImageAnimated(image)
                 
                 if let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first {

@@ -5,15 +5,37 @@
 //  Created by Marcelo Gobetti on 3/18/18.
 //
 
+import RxCocoa
+import RxSwift
 import UIKit
 
 final class MovieDetailsViewController: UIViewController {
-    private let movie: Movie
+    private let disposeBag = DisposeBag()
+    private let image: Single<UIImage>
+    private let overview: String
     private var shouldHideBarsOnSwipe = false
     
-    init(movie: Movie) {
-        self.movie = movie
+    // MARK: - Outlets
+    @IBOutlet private weak var posterImageView: UIImageView! {
+        didSet {
+            self.image.asDriver(onErrorDriveWith: Driver.empty())
+                .drive(onNext: { [unowned self] image in
+                    self.posterImageView.setImageAnimated(image)
+                }).disposed(by: self.disposeBag)
+        }
+    }
+    @IBOutlet private weak var overviewTextView: UITextView! {
+        didSet {
+            self.overviewTextView.text = self.overview
+        }
+    }
+    
+    // MARK: - Initializers
+    init(title: String, image: Single<UIImage>, overview: String) {
+        self.image = image
+        self.overview = overview
         super.init(nibName: "MovieDetailsView", bundle: nil)
+        self.title = title
     }
     
     required init?(coder aDecoder: NSCoder) {
