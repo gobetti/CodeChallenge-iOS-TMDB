@@ -22,4 +22,31 @@ class CodeChallengeUITests: XCTestCase {
         app.collectionViews.cells.otherElements.firstMatch.tap()
         XCTAssertTrue(app.otherElements["detailsView"].exists)
     }
+    
+    func testNavigationBarAppearsOnDetailsPageAfterScrollingDownAndUp() {
+        let app = XCUIApplication()
+        app.collectionViews.cells.otherElements.firstMatch.tap()
+        let scrollView = app/*@START_MENU_TOKEN@*/.scrollViews/*[[".otherElements[\"detailsView\"].scrollViews",".scrollViews"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.children(matching: .other).element
+        scrollView.swipeUp()
+        scrollView.swipeDown()
+        XCTAssertTrue(app.navigationBars.firstMatch.buttons["Back"].exists)
+    }
+    
+    func testNavigationBarDisappearsComingBackFromDetailsPageIfPreviouslyHidden() {
+        let app = XCUIApplication()
+        let collectionViewCell = app.collectionViews.cells.otherElements.firstMatch
+        collectionViewCell.swipeUp()
+        XCTAssertFalse(app.navigationBars.firstMatch.exists,
+                       "The navigation bar should auto hide on swipe")
+        
+        // Details page:
+        collectionViewCell.tap()
+        app.navigationBars.firstMatch.buttons["Back"].tap()
+        
+        // List page:
+        let collectionViewCell2 = app.collectionViews.cells.otherElements.firstMatch
+        collectionViewCell2.swipeUp()
+        XCTAssertFalse(app.navigationBars.firstMatch.exists,
+                       "The navigation bar should auto hide again on swipe")
+    }
 }

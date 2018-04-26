@@ -9,6 +9,7 @@ import UIKit
 
 final class MovieDetailsViewController: UIViewController {
     private let movie: Movie
+    private var shouldHideBarsOnSwipe = false
     
     init(movie: Movie) {
         self.movie = movie
@@ -24,5 +25,12 @@ final class MovieDetailsViewController: UIViewController {
         super.viewDidLoad()
         self.view.accessibilityIdentifier = "detailsView" // UI Test
         self.navigationController?.setNavigationBarHidden(false, animated: true)
+        self.shouldHideBarsOnSwipe = self.navigationController?.hidesBarsOnSwipe == true
+        self.navigationController?.hidesBarsOnSwipe = false
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.navigationController?.hidesBarsOnSwipe = self.shouldHideBarsOnSwipe
     }
 }
