@@ -89,11 +89,9 @@ final class MoviesListViewController: UIViewController {
     
     // MARK: - Private methods
     private var pageRequester: Observable<Void> {
-        return self.collectionView.rx.willEndDragging
-            .filter { [unowned self] (_, targetContentOffset) in
-                let scrollView = self.collectionView
-                let distance = scrollView.contentSize.height - (targetContentOffset.pointee.y + scrollView.bounds.height)
-                return distance < 200
+        return self.collectionView.rx.willDisplayCell
+            .filter { _, indexPath in
+                indexPath.item == self.collectionView.numberOfItems(inSection: 0) - 1
             }.map { _ in }
     }
     
