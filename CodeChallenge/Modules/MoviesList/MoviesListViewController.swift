@@ -37,7 +37,7 @@ final class MoviesListViewController: UIViewController {
         fatalError("init(coder:) is not supported")
     }
     
-    // MARK: - UIViewController
+    // MARK: - UIViewController overrides
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationController?.hidesBarsOnSwipe = true
@@ -47,6 +47,12 @@ final class MoviesListViewController: UIViewController {
         self.setupContent()
         self.setupMovieNavigator()
         self.setupSearch()
+    }
+    
+    override func viewWillTransition(to size: CGSize,
+                                     with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        self.collectionView.collectionViewLayout.invalidateLayout()
     }
     
     // MARK: - Private methods
