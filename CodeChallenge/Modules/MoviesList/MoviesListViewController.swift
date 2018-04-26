@@ -148,7 +148,15 @@ private class MoviesListFlowLayout: UICollectionViewFlowLayout {
     private let itemsPerRow: CGFloat = {
         return UIDevice.current.userInterfaceIdiom == .pad ? 2 : 1
     }()
+    private let expectedItemsOnLoad: CGFloat = 20
     private let minimumSpacingBetweenItems: CGFloat = 1
+    private var itemHeight: CGFloat {
+        let rows = self.expectedItemsOnLoad / self.itemsPerRow
+        let gaps = rows - 1
+        let visibleRows = rows - 2 // subtracting rows to ensure that the last cell won't be visible
+        return max(MoviesListViewConstants.cellHeight,
+                   UIScreen.main.bounds.height / visibleRows - gaps * self.minimumSpacingBetweenItems)
+    }
     private var itemWidth: CGFloat {
         let gaps = self.itemsPerRow - 1
         return UIScreen.main.bounds.width / self.itemsPerRow
@@ -157,7 +165,7 @@ private class MoviesListFlowLayout: UICollectionViewFlowLayout {
     
     // MARK: - UICollectionViewFlowLayout overrides
     override var itemSize: CGSize {
-        get { return CGSize(width: self.itemWidth, height: MoviesListViewConstants.cellHeight) }
+        get { return CGSize(width: self.itemWidth, height: self.itemHeight) }
         set {}
     }
     
