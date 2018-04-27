@@ -5,11 +5,13 @@
 //  Created by Marcelo Gobetti on 3/18/18.
 //
 
+import ColorCube
 import RxCocoa
 import RxSwift
 import UIKit
 
 final class MovieDetailsViewController: UIViewController {
+    private let colorCube = CCColorCube()
     private let disposeBag = DisposeBag()
     private let image: Single<UIImage>
     private let overview: String
@@ -18,9 +20,20 @@ final class MovieDetailsViewController: UIViewController {
     // MARK: - Outlets
     @IBOutlet private weak var posterImageView: UIImageView! {
         didSet {
-            self.image.asDriver(onErrorDriveWith: Driver.empty())
-                .drive(onNext: { [unowned self] image in
+            self.image.observeOn(ConcurrentDispatchQueueScheduler(qos: .background))
+                .map { [unowned self] image -> (UIImage, UIColor?) in
+                    assert(!Thread.isMainThread)
+                    let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first
+                    return (image, color)
+                }.asDriver(onErrorDriveWith: Driver.empty())
+                .drive(onNext: { [unowned self] image, backgroundColor in
                     self.posterImageView.setImageAnimated(image)
+                    
+                    if let color = backgroundColor {
+                        UIView.animate(withDuration: 0.5, animations: {
+                            self.view.backgroundColor = color
+                        })
+                    }
                 }).disposed(by: self.disposeBag)
         }
     }
