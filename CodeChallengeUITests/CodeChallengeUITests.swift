@@ -42,7 +42,7 @@ class CodeChallengeUITests: XCTestCase {
         
         // Details page:
         collectionViewCell.tap()
-        app.navigationBars.firstMatch.buttons["Back"].tap()
+        app.navigationBars.firstMatch.buttons["Back"].firstMatch.tap()
         
         // List page:
         let collectionViewCell2 = app.collectionViews.cells.otherElements.firstMatch
