@@ -79,7 +79,7 @@ final class MoviesListViewController: UIViewController {
                 cell.releaseDateLabel.text = DateFormatter.localizedString(from: movie.releaseDate,
                                                                            dateStyle: .medium,
                                                                            timeStyle: .none)
-                cell.image = self.viewModel.image(width: 300, from: movie).asDriver(onErrorDriveWith: Driver.empty())
+                cell.image = self.viewModel.image(width: 300, from: movie)
             }.disposed(by: self.disposeBag)
         
         // Loading

@@ -11,28 +11,38 @@ import RxCocoa
 import RxSwift
 
 final class MoviesListCell: UICollectionViewCell {
+    private typealias BrightColor = UIColor
+    private typealias DarkColor = UIColor
+    
     private var disposeBag = DisposeBag()
     private let colorCube = CCColorCube()
     
-    var image: Driver<UIImage>? {
+    var image: Single<UIImage>? {
         didSet {
             guard let image = self.image else {
                 self.imageView.setImageAnimated(nil)
                 return
             }
             
-            image.drive(onNext: { [unowned self] image in
-                self.imageView.setImageAnimated(image)
-                
-                if let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first {
-                    self.titleLabel.attributedText = NSAttributedString(string: self.titleLabel.text ?? "",
-                                                                        attributes: [.backgroundColor: color])
-                }
-                if let color = self.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first {
-                    self.releaseDateLabel.attributedText = NSAttributedString(string: self.releaseDateLabel.text ?? "",
-                                                                              attributes: [.backgroundColor: color])
-                }
-            }).disposed(by: self.disposeBag)
+            image.observeOn(ConcurrentDispatchQueueScheduler(qos: .background))
+                .map { [unowned self] image -> (UIImage, BrightColor?, DarkColor?) in
+                    assert(!Thread.isMainThread)
+                    let brightColor = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first
+                    let darkColor = self.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first
+                    return (image, brightColor, darkColor)
+                }.asDriver(onErrorDriveWith: Driver.empty())
+                .drive(onNext: { [unowned self] image, brightColor, darkColor in
+                    self.imageView.setImageAnimated(image)
+                    
+                    if let color = brightColor {
+                        self.titleLabel.attributedText = NSAttributedString(string: self.titleLabel.text ?? "",
+                                                                            attributes: [.backgroundColor: color])
+                    }
+                    if let color = darkColor {
+                        self.releaseDateLabel.attributedText = NSAttributedString(string: self.releaseDateLabel.text ?? "",
+                                                                                  attributes: [.backgroundColor: color])
+                    }
+                }).disposed(by: self.disposeBag)
         }
     }
     
