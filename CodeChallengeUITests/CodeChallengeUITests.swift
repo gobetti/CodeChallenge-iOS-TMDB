@@ -12,6 +12,7 @@ class CodeChallengeUITests: XCTestCase {
         super.setUp()
         
         continueAfterFailure = false
+        XCUIDevice.shared.orientation = .portrait
         let app = XCUIApplication()
         app.launchArguments.append("--uitesting")
         app.launch()
@@ -56,5 +57,13 @@ class CodeChallengeUITests: XCTestCase {
         
         app.collectionViews.cells.otherElements.firstMatch.swipeUp()
         XCTAssertGreaterThan(app.collectionViews.cells.count, previousCellsCount)
+    }
+    
+    func testDeviceRotationRecalculatesCellSizes() {
+        let app = XCUIApplication()
+        let cellWidthOnPortrait = app.collectionViews.cells.otherElements.firstMatch.frame.size.width
+        
+        XCUIDevice.shared.orientation = .landscapeRight
+        XCTAssertGreaterThan(app.collectionViews.cells.otherElements.firstMatch.frame.size.width, cellWidthOnPortrait)
     }
 }
