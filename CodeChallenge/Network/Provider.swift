@@ -100,8 +100,6 @@ final class Provider<Target: TargetType> {
 // MARK: - Private
 // Entities and methods that are not supposed to be used outside a Provider
 private struct MockURLSession: URLSessionProtocol {
-    private let disposeBag = DisposeBag()
-    
     private let stub: Stub
     private let delay: TimeInterval
     private let scheduler: SchedulerType
@@ -115,9 +113,7 @@ private struct MockURLSession: URLSessionProtocol {
     }
     
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        let task = MockURLSessionDataTask()
-        
-        let completion = {
+        let completion: MockURLSessionDataTask.Completion = { error in
             switch self.stub {
             case .success(let response):
                 completionHandler(response.data,
@@ -125,7 +121,7 @@ private struct MockURLSession: URLSessionProtocol {
                                                   statusCode: response.statusCode,
                                                   httpVersion: nil,
                                                   headerFields: nil),
-                                  nil)
+                                  error)
             case .error(let error):
                 completionHandler(nil, nil, error)
             case .default:
@@ -133,24 +129,9 @@ private struct MockURLSession: URLSessionProtocol {
             }
         }
         
-        guard delay > 0 else {
-            completion()
-            return task
-        }
-        
-        let scheduledObservable = Completable.create { event in
-            return self.scheduler.scheduleRelative((), dueTime: self.delay) { _ in
-                completion()
-                event(.completed)
-                return Disposables.create { task.cancel() }
-            }
-        }
-        
-        _ = task.didStartRunning
-            .andThen(scheduledObservable)
-            .subscribe().disposed(by: disposeBag)
-        
-        return task
+        return MockURLSessionDataTask(completion: completion,
+                                      delay: self.delay,
+                                      scheduler: self.scheduler)
     }
 }
 
@@ -158,30 +139,66 @@ private enum MockURLSessionDataTaskError: Error {
     case cancelled
 }
 
-private final class MockURLSessionDataTask: URLSessionDataTask {
+final class MockURLSessionDataTask: URLSessionDataTask {
+    typealias Completion = (Error?) -> ()
+    
+    private let completion: Completion
+    private let delay: TimeInterval
+    private let scheduler: SchedulerType
+    
     private let lock = NSRecursiveLock()
+    private let isRunning = PublishSubject<Bool>()
+    private var scheduledSubscription: Disposable!
     
-    private let isCancelled = BehaviorRelay(value: false)
-    private let isRunning = BehaviorSubject(value: false)
-    
-    var didStartRunning: Completable {
-        return Completable.create { event in
+    init(completion: @escaping Completion, delay: TimeInterval, scheduler: SchedulerType) {
+        self.completion = completion
+        self.delay = delay
+        self.scheduler = scheduler
+        super.init()
+        
+        let scheduleCompletion = Completable.create { [weak self] event in
+            guard let strongSelf = self else { return Disposables.create() }
+            
+            guard strongSelf.delay > 0 else {
+                strongSelf.complete()
+                event(.completed)
+                return Disposables.create()
+            }
+            
+            return strongSelf.scheduler.scheduleRelative((), dueTime: strongSelf.delay) { _ in
+                self?.complete()
+                event(.completed)
+                return Disposables.create { self?.cancel() }
+            }
+        }
+        
+        let didStartRunning = Completable.create { [unowned self] event in
             self.isRunning.filter { $0 }.take(1).subscribe(onCompleted: {
                 event(.completed)
             })
         }
+        
+        scheduledSubscription = didStartRunning.andThen(scheduleCompletion).subscribe()
     }
     
     override func cancel() {
         lock.lock()
-        self.isCancelled.accept(true)
-        self.isRunning.onError(MockURLSessionDataTaskError.cancelled)
+        self.complete(withError: MockURLSessionDataTaskError.cancelled)
         lock.unlock()
     }
     
     override func resume() {
         lock.lock()
         self.isRunning.onNext(true)
+        lock.unlock()
+    }
+    
+    private func complete(withError error: Error? = nil) {
+        lock.lock()
+        self.isRunning.onNext(false)
+        self.isRunning.onCompleted()
+        scheduledSubscription.dispose()
+        self.completion(error)
         lock.unlock()
     }
 }

@@ -76,6 +76,99 @@ class ProviderTests: XCTestCase {
             
             return results.events
     }
+    
+    // MARK: - MockURLSessionDataTask
+    func testImmediateStubDoesNotRespondIfNeverResumed() {
+        let responseExpectation = expectation(description: "❌ responded")
+        responseExpectation.isInverted = true // should not respond
+        
+        let completion: MockURLSessionDataTask.Completion = { _ in
+            responseExpectation.fulfill()
+        }
+        
+        _ = MockURLSessionDataTask(completion: completion, delay: 0, scheduler: MainScheduler.instance)
+        
+        wait(for: [responseExpectation], timeout: 1.0)
+    }
+    
+    func testDelayedStubErrorsOutIfCancelledBeforeDelay() {
+        let responseDelay: TimeInterval = 1.0
+        
+        let errorExpectation = expectation(description: "✅ response returned error")
+        let noErrorExpectation = expectation(description: "❌ response returned no error")
+        noErrorExpectation.isInverted = true // should not respond without an error
+        
+        let completion: MockURLSessionDataTask.Completion = { error in
+            if error != nil {
+                errorExpectation.fulfill()
+            } else {
+                noErrorExpectation.fulfill()
+            }
+        }
+        
+        let scheduler = MainScheduler.instance
+        let task = MockURLSessionDataTask(completion: completion, delay: responseDelay, scheduler: scheduler)
+        task.resume()
+        _ = Observable<Int>.timer(responseDelay / 2, scheduler: scheduler).take(1).subscribe(onNext: { _ in
+            task.cancel()
+        })
+        
+        wait(for: [errorExpectation, noErrorExpectation], timeout: responseDelay)
+    }
+    
+    // MARK: - Memory
+    func testDelayedStubClearsResourcesWhenCancelled() {
+        let previousResourcesCount = RxSwift.Resources.total
+        let integerResponseDelay = 5
+        let responseDelay = TimeInterval(integerResponseDelay)
+        
+        let cancelTime = 3
+        XCTAssertGreaterThan(integerResponseDelay, cancelTime,
+                             "This test is not meant to work for a cancelTime <= responseDelay")
+        
+        func localScope() {
+            // scoped so that the `subscription` itself is not only disposed but also deallocated
+            let provider = Provider<MockTarget>(stubBehavior: .delayed(time: responseDelay, stub: .default),
+                                                scheduler: self.scheduler)
+            
+            var requestSubscription: Disposable?
+            scheduler.scheduleAt(self.initialTime) {
+                requestSubscription = provider.request(MockTarget.validURL).asObservable().subscribe()
+            }
+            scheduler.scheduleAt(cancelTime) {
+                XCTAssertLessThan(previousResourcesCount, RxSwift.Resources.total)
+                requestSubscription?.dispose()
+            }
+            scheduler.start()
+        }
+        localScope()
+        
+        XCTAssertEqual(previousResourcesCount, RxSwift.Resources.total)
+    }
+    
+    func testDelayedStubClearsResourcesOnceCompleted() {
+        let previousResourcesCount = RxSwift.Resources.total
+        let integerResponseDelay = 5
+        let responseDelay = TimeInterval(integerResponseDelay)
+        
+        func localScope() {
+            // scoped so that the `subscription` itself is not only disposed but also deallocated
+            let provider = Provider<MockTarget>(stubBehavior: .delayed(time: responseDelay, stub: .default),
+                                                scheduler: self.scheduler)
+            
+            scheduler.scheduleAt(self.initialTime) {
+                _ = provider.request(MockTarget.validURL).asObservable().subscribe()
+            }
+            scheduler.scheduleAt(integerResponseDelay + 1) {
+                XCTAssertEqual(previousResourcesCount + 1, RxSwift.Resources.total,
+                               "The only additional resource living after completion should be `scheduleAt`")
+            }
+            scheduler.start()
+        }
+        localScope()
+        
+        XCTAssertEqual(previousResourcesCount, RxSwift.Resources.total)
+    }
 }
 
 private enum MockTarget: TargetType {
