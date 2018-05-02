@@ -57,20 +57,7 @@ final class Provider<Target: TargetType> {
         
         switch target.task {
         case .requestParameters(let parameters):
-            guard !parameters.isEmpty else { break }
-            
-            let query = parameters.compactMap { key, value in
-                guard let escapedKey = key.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                    let escapedValue = value.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-                        return nil
-                }
-                return "\(escapedKey)=\(escapedValue)"
-                }.joined(separator: "&")
-            
-            if var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-                urlComponents.percentEncodedQuery = query
-                request.url = urlComponents.url
-            }
+            request = request.addingParameters(parameters)
         case .requestPlain: break
         }
         
