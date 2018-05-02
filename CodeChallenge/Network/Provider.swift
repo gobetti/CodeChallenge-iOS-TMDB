@@ -88,15 +88,13 @@ final class Provider<Target: TargetType> {
 // Entities and methods that are not supposed to be used outside a Provider
 private struct MockURLSession: URLSessionProtocol {
     private let stub: Stub
-    private let delay: TimeInterval
     private let scheduler: SchedulerType
+    private let delay: TimeInterval
     
-    init(stub: Stub,
-         delay: TimeInterval = 0,
-         scheduler: SchedulerType = ConcurrentDispatchQueueScheduler(qos: .background)) {
+    init(stub: Stub, scheduler: SchedulerType, delay: TimeInterval = 0) {
         self.stub = stub
-        self.delay = delay
         self.scheduler = scheduler
+        self.delay = delay
     }
     
     func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
@@ -117,8 +115,8 @@ private struct MockURLSession: URLSessionProtocol {
         }
         
         return MockURLSessionDataTask(completion: completion,
-                                      delay: self.delay,
-                                      scheduler: self.scheduler)
+                                      scheduler: self.scheduler,
+                                      delay: self.delay)
     }
 }
 
@@ -136,10 +134,10 @@ final class MockURLSessionDataTask: URLSessionDataTask {
     private let isRunning = PublishSubject<Bool>()
     private var scheduledSubscription: Disposable!
     
-    init(completion: @escaping Completion, delay: TimeInterval, scheduler: SchedulerType) {
+    init(completion: @escaping Completion, scheduler: SchedulerType, delay: TimeInterval) {
         self.completion = completion
-        self.delay = delay
         self.scheduler = scheduler
+        self.delay = delay
         super.init()
         
         let scheduleCompletion = Completable.create { [weak self] event in
@@ -192,9 +190,9 @@ private extension TargetType {
                         scheduler: SchedulerType) -> URLSessionProtocol {
         switch stubBehavior {
         case .delayed(let time, let stub):
-            return MockURLSession(stub: makeStub(from: stub), delay: time, scheduler: scheduler)
+            return MockURLSession(stub: makeStub(from: stub), scheduler: scheduler, delay: time)
         case .immediate(let stub):
-            return MockURLSession(stub: makeStub(from: stub))
+            return MockURLSession(stub: makeStub(from: stub), scheduler: scheduler)
         case .never:
             return URLSession.shared
         }

@@ -86,7 +86,7 @@ class ProviderTests: XCTestCase {
             responseExpectation.fulfill()
         }
         
-        _ = MockURLSessionDataTask(completion: completion, delay: 0, scheduler: MainScheduler.instance)
+        _ = MockURLSessionDataTask(completion: completion, scheduler: MainScheduler.instance, delay: 0)
         
         wait(for: [responseExpectation], timeout: 1.0)
     }
@@ -107,7 +107,7 @@ class ProviderTests: XCTestCase {
         }
         
         let scheduler = MainScheduler.instance
-        let task = MockURLSessionDataTask(completion: completion, delay: responseDelay, scheduler: scheduler)
+        let task = MockURLSessionDataTask(completion: completion, scheduler: scheduler, delay: responseDelay)
         task.resume()
         _ = Observable<Int>.timer(responseDelay / 2, scheduler: scheduler).take(1).subscribe(onNext: { _ in
             task.cancel()
