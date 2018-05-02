@@ -67,4 +67,25 @@ class CodeChallengeUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeRight
         XCTAssertGreaterThan(app.collectionViews.cells.otherElements.firstMatch.frame.size.width, cellWidthOnPortrait)
     }
+    
+    func testNonEmptySearchReplacesResults() {
+        let app = XCUIApplication()
+        let firstCell = app.collectionViews.cells.otherElements.firstMatch
+        let firstCellTitleWhenNotSearching = firstCell.staticTexts.firstMatch.label
+        
+        firstCell.swipeDown()
+        let searchField = app.searchFields.firstMatch
+        searchField.tap()
+        searchField.typeText("some text")
+        
+        let differs = NSPredicate(format: "staticTexts.firstMatch.label != %@", firstCellTitleWhenNotSearching)
+        expectation(for: differs, evaluatedWith: app.collectionViews.cells.otherElements.firstMatch, handler: nil)
+        waitForExpectations(timeout: 2.0)
+        
+        searchField.buttons["Clear text"].tap()
+        
+        let equals = NSPredicate(format: "staticTexts.firstMatch.label == %@", firstCellTitleWhenNotSearching)
+        expectation(for: equals, evaluatedWith: app.collectionViews.cells.otherElements.firstMatch, handler: nil)
+        waitForExpectations(timeout: 2.0)
+    }
 }
