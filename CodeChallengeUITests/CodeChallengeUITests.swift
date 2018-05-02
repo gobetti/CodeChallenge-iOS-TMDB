@@ -41,6 +41,7 @@ class CodeChallengeUITests: XCTestCase {
                        "The navigation bar should auto hide on swipe")
         
         // Details page:
+        collectionViewCell.swipeDown()
         collectionViewCell.tap()
         app.navigationBars.firstMatch.buttons["Back"].firstMatch.tap()
         
