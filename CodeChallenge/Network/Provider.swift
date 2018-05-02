@@ -133,7 +133,7 @@ final class MockURLSessionDataTask: URLSessionDataTask {
     private let delay: TimeInterval
     private let scheduler: SchedulerType
     
-    private let lock = NSRecursiveLock()
+    private let serialQueue = DispatchQueue(label: "DataTask")
     private let isRunning = PublishSubject<Bool>()
     private var scheduledSubscription: Disposable!
     
@@ -159,34 +159,29 @@ final class MockURLSessionDataTask: URLSessionDataTask {
             }
         }
         
-        let didStartRunning = Completable.create { [unowned self] event in
-            self.isRunning.filter { $0 }.take(1).subscribe(onCompleted: {
-                event(.completed)
-            })
-        }
-        
-        scheduledSubscription = didStartRunning.andThen(scheduleCompletion).subscribe()
+        scheduledSubscription = self.isRunning.filter { $0 }.take(1)
+            .flatMap { _ in scheduleCompletion }
+            .subscribe()
     }
     
     override func cancel() {
-        lock.lock()
-        self.complete(withError: MockURLSessionDataTaskError.cancelled)
-        lock.unlock()
+        serialQueue.async {
+            self.complete(withError: MockURLSessionDataTaskError.cancelled)
+        }
     }
     
     override func resume() {
-        lock.lock()
-        self.isRunning.onNext(true)
-        lock.unlock()
+        serialQueue.async {
+            self.isRunning.onNext(true)
+        }
     }
     
     private func complete(withError error: Error? = nil) {
-        lock.lock()
-        self.isRunning.onNext(false)
-        self.isRunning.onCompleted()
-        scheduledSubscription.dispose()
-        self.completion(error)
-        lock.unlock()
+        serialQueue.async {
+            self.isRunning.onCompleted()
+            self.scheduledSubscription.dispose()
+            self.completion(error)
+        }
     }
 }
 
