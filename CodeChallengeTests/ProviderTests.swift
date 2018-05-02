@@ -22,7 +22,7 @@ class ProviderTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.disposeBag = DisposeBag()
-        self.scheduler = TestScheduler(initialClock: 0)
+        self.scheduler = TestScheduler(initialClock: 0, simulateProcessingDelay: false)
     }
     
     func testValidURLRequestSucceeds() {

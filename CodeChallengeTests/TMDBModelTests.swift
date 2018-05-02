@@ -18,7 +18,7 @@ class TMDBModelTests: XCTestCase {
     override func setUp() {
         super.setUp()
         self.disposeBag = DisposeBag()
-        self.scheduler = TestScheduler(initialClock: 0)
+        self.scheduler = TestScheduler(initialClock: 0, simulateProcessingDelay: false)
     }
     
     /// This test serves as a test for many other things that we can consider
