@@ -133,7 +133,6 @@ final class MockURLSessionDataTask: URLSessionDataTask {
     private let delay: TimeInterval
     private let scheduler: SchedulerType
     
-    private let serialQueue = DispatchQueue(label: "DataTask")
     private let isRunning = PublishSubject<Bool>()
     private var scheduledSubscription: Disposable!
     
@@ -165,22 +164,25 @@ final class MockURLSessionDataTask: URLSessionDataTask {
     }
     
     override func cancel() {
-        serialQueue.async {
+        _ = self.scheduler.schedule(()) { _ in
             self.complete(withError: MockURLSessionDataTaskError.cancelled)
+            return Disposables.create()
         }
     }
     
     override func resume() {
-        serialQueue.async {
+        _ = self.scheduler.schedule(()) { _ in
             self.isRunning.onNext(true)
+            return Disposables.create()
         }
     }
     
     private func complete(withError error: Error? = nil) {
-        serialQueue.async {
+        _ = self.scheduler.schedule(()) { _ in
             self.isRunning.onCompleted()
             self.scheduledSubscription.dispose()
             self.completion(error)
+            return Disposables.create()
         }
     }
 }
