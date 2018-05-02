@@ -10,6 +10,10 @@ import ColorCube
 import RxCocoa
 import RxSwift
 
+private enum MoviesListCellError: Error {
+    case deallocated
+}
+
 final class MoviesListCell: UICollectionViewCell {
     private typealias BrightColor = UIColor
     private typealias DarkColor = UIColor
@@ -25,10 +29,11 @@ final class MoviesListCell: UICollectionViewCell {
             }
             
             image.observeOn(ConcurrentDispatchQueueScheduler(qos: .background))
-                .map { [unowned self] image -> (UIImage, BrightColor?, DarkColor?) in
+                .map { [weak self] image -> (UIImage, BrightColor?, DarkColor?) in
+                    guard let strongSelf = self else { throw MoviesListCellError.deallocated }
                     assert(!Thread.isMainThread)
-                    let brightColor = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first
-                    let darkColor = self.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first
+                    let brightColor = strongSelf.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first
+                    let darkColor = strongSelf.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first
                     return (image, brightColor, darkColor)
                 }.asDriver(onErrorDriveWith: Driver.empty())
                 .drive(onNext: { [unowned self] image, brightColor, darkColor in
