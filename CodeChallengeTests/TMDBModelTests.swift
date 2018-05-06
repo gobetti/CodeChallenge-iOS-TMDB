@@ -10,6 +10,10 @@ import XCTest
 import RxSwift
 import RxTest
 
+final class MockGenresStore: GenresStoreProtocol {
+    var genres = [Genre]()
+}
+
 class TMDBModelTests: XCTestCase {
     var disposeBag: DisposeBag!
     var scheduler: TestScheduler!
@@ -118,6 +122,31 @@ class TMDBModelTests: XCTestCase {
         
         let expected = [
             next(self.initialTime, CGFloat(imageWidth)),
+            completed(self.initialTime)
+        ]
+        
+        XCTAssertEqual(events, expected)
+    }
+    
+    func testMoviesGenresIDsMappingToGenresNames() {
+        let genresStore = MockGenresStore()
+        let tmdbModel = TMDBModel(stubBehavior: .immediate(stub: .default), scheduler: scheduler, genresStore: genresStore)
+        let results = scheduler.createObserver(TMDBResults.self)
+        
+        scheduler.scheduleAt(self.initialTime) {
+            tmdbModel.upcomingMovies().asObservable()
+                .subscribe(results).disposed(by: self.disposeBag)
+        }
+        scheduler.start()
+        
+        let events = results.events.map {
+            $0.map {
+                genresStore.genreNames(for: $0.movies.first!)
+            }
+        }
+        
+        let expected = [
+            next(self.initialTime, ["Action", "Adventure", "Comedy", "Family"]),
             completed(self.initialTime)
         ]
         

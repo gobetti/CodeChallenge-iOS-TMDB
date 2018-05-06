@@ -16,6 +16,7 @@ class MoviesListViewModelTests: XCTestCase {
     
     func expectedResultsCount(for request: TMDB) -> Int {
         switch request {
+        case .genres: fatalError("genres request does not return TMDBResults")
         case .search: return 18
         case .upcomingMovies(let page):
             if page == 2 { return 19 }

@@ -17,11 +17,14 @@ struct TMDBModel {
     
     private let imageProvider: ImageProvider
     private let moviesProvider: MoviesProvider
+    private let genresStore: GenresStoreProtocol
     
     init(stubBehavior: StubBehavior = .never,
-         scheduler: SchedulerType = ConcurrentDispatchQueueScheduler(qos: .background)) {
+         scheduler: SchedulerType = ConcurrentDispatchQueueScheduler(qos: .background),
+         genresStore: GenresStoreProtocol = GenresStore.shared) {
         self.imageProvider = ImageProvider(stubBehavior: stubBehavior, scheduler: scheduler)
         self.moviesProvider = MoviesProvider(stubBehavior: stubBehavior, scheduler: scheduler)
+        self.genresStore = genresStore
     }
     
     func image(width: Int, from movie: Movie) -> Single<UIImage> {
@@ -43,16 +46,37 @@ struct TMDBModel {
     }
     
     // MARK: - Private
+    private func requestGenres() -> Single<[Genre]> {
+        return self.moviesProvider
+            .request(TMDB.genres)
+            .map { data -> TMDBGenres in
+                return try JSONDecoder().decode(TMDBGenres.self, from: data)
+            }.map { $0.genres }
+    }
+    
     private func requestMovies(_ type: TMDB) -> Single<TMDBResults> {
         return self.moviesProvider
             .request(type)
             .map { data -> TMDBResults in
                 return try TMDBResults.decoder.decode(TMDBResults.self, from: data)
-            }
+            }.flatMap { results -> Single<TMDBResults> in
+                let hasUnknownGenre = results.movies.contains {
+                    $0.genreIds.contains {
+                        !self.genresStore.genres.map { $0.id }.contains($0)
+                    }
+                }
+                guard !hasUnknownGenre else {
+                    return self.requestGenres()
+                        .do(onSuccess: { self.genresStore.genres = $0 })
+                        .map { _ in results }
+                }
+                return .just(results)
+        }
     }
 }
 
 enum TMDB {
+    case genres
     case search(query: String, page: Int)
     case upcomingMovies(page: Int)
 }
@@ -68,6 +92,8 @@ extension TMDB: TargetType {
     
     public var path: String {
         switch self {
+        case .genres:
+            return "/genre/movie/list"
         case .search:
             return "/search/movie"
         case .upcomingMovies:
@@ -80,14 +106,20 @@ extension TMDB: TargetType {
     }
     
     public var sampleData: Data {
+        func jsonData(fromFile fileName: String) -> Data {
+            return try! Data(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "json")!)
+        }
+        
         switch self {
+        case .genres:
+            return jsonData(fromFile: "genres")
         case .search:
-            return try! Data(contentsOf: Bundle.main.url(forResource: "search_1", withExtension: "json")!)
+            return jsonData(fromFile: "search_1")
         case .upcomingMovies(let page):
             if page == 2 {
-                return try! Data(contentsOf: Bundle.main.url(forResource: "upcoming_page_2", withExtension: "json")!)
+                return jsonData(fromFile: "upcoming_page_2")
             }
-            return try! Data(contentsOf: Bundle.main.url(forResource: "upcoming_page_1", withExtension: "json")!)
+            return jsonData(fromFile: "upcoming_page_1")
         }
     }
     
@@ -104,6 +136,8 @@ extension TMDB: TargetType {
         var parameters = defaultParameters
         
         switch self {
+        case .genres:
+            break
         case .search(_, let page),
              .upcomingMovies(let page):
             parameters.merge(["page": "\(page)"]) { (_, new) in new }
@@ -149,6 +183,10 @@ extension TMDBImage: TargetType {
     public var headers: [String : String]? {
         return nil
     }
+}
+
+struct TMDBGenres: Decodable {
+    let genres: [Genre]
 }
 
 struct TMDBResults: Decodable, Equatable {
