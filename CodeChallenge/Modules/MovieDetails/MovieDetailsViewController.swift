@@ -11,8 +11,6 @@ import RxSwift
 import UIKit
 
 final class MovieDetailsViewController: UIViewController {
-    private typealias GradientColors = (bright: UIColor, dark: UIColor)
-    
     private let colorCube = CCColorCube()
     private let disposeBag = DisposeBag()
     private let image: Single<UIImage>
@@ -23,22 +21,19 @@ final class MovieDetailsViewController: UIViewController {
     @IBOutlet private weak var posterImageView: UIImageView! {
         didSet {
             self.image.observeOn(ConcurrentDispatchQueueScheduler(qos: .background))
-                .map { [unowned self] image -> (UIImage, GradientColors) in
+                .map { [unowned self] image -> (UIImage, UIColor?) in
                     assert(!Thread.isMainThread)
-                    let brightColor = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first
-                    let darkColor = self.colorCube.extractDarkColors(from: image, avoid: .black, count: 1)?.first
-                    let colors = GradientColors(brightColor ?? #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), darkColor ?? #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1))
-                    return (image, colors)
+                    let color = self.colorCube.extractBrightColors(from: image, avoid: .white, count: 1)?.first
+                    return (image, color)
                 }.asDriver(onErrorDriveWith: Driver.empty())
-                .drive(onNext: { [unowned self] image, gradientColors in
+                .drive(onNext: { [unowned self] image, backgroundColor in
                     self.posterImageView.setImageAnimated(image)
-            
-                    UIView.animate(withDuration: 0.5, animations: {
-                        let gradientLayer = CAGradientLayer()
-                        gradientLayer.frame = self.view.frame
-                        gradientLayer.colors = [gradientColors.dark.cgColor, gradientColors.bright.cgColor]
-                        self.view.layer.insertSublayer(gradientLayer, at: 0)
-                    })
+                    
+                    if let color = backgroundColor {
+                        UIView.animate(withDuration: 0.5, animations: {
+                            self.view.backgroundColor = color
+                        })
+                    }
                 }).disposed(by: self.disposeBag)
         }
     }
