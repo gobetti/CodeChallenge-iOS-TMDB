@@ -112,6 +112,7 @@ final class MoviesListViewController: UIViewController {
                 
                 navigationController.pushViewController(
                     MovieDetailsViewController(title: selectedMovie.originalTitle,
+                                               genreNames: GenresStore.shared.genreNames(for: selectedMovie),
                                                image: self.viewModel.image(width: 500, from: selectedMovie),
                                                overview: selectedMovie.overview),
                     animated: true)

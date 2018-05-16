@@ -13,6 +13,7 @@ import UIKit
 final class MovieDetailsViewController: UIViewController {
     private let colorCube = CCColorCube()
     private let disposeBag = DisposeBag()
+    private let genreNames: [String]
     private let image: Single<UIImage>
     private let overview: String
     private var shouldHideBarsOnSwipe = false
@@ -37,6 +38,11 @@ final class MovieDetailsViewController: UIViewController {
                 }).disposed(by: self.disposeBag)
         }
     }
+    @IBOutlet private weak var genresLabel: UILabel! {
+        didSet {
+            self.genresLabel.text = genreNames.joined(separator: ", ")
+        }
+    }
     @IBOutlet private weak var overviewTextView: UITextView! {
         didSet {
             self.overviewTextView.text = self.overview
@@ -44,7 +50,8 @@ final class MovieDetailsViewController: UIViewController {
     }
     
     // MARK: - Initializers
-    init(title: String, image: Single<UIImage>, overview: String) {
+    init(title: String, genreNames: [String], image: Single<UIImage>, overview: String) {
+        self.genreNames = genreNames
         self.image = image
         self.overview = overview
         super.init(nibName: "MovieDetailsView", bundle: nil)
