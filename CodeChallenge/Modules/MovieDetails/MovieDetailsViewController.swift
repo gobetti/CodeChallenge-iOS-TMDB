@@ -51,6 +51,7 @@ final class MovieDetailsViewController: UIViewController {
         self.title = title
     }
     
+    @available(*, unavailable)
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) is not supported")
     }
