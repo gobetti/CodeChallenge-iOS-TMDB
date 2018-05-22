@@ -8,25 +8,25 @@
 import XCTest
 
 class CodeChallengeUITests: XCTestCase {
+    var app: XCUIApplication!
+    
     override func setUp() {
         super.setUp()
         
         continueAfterFailure = false
         XCUIDevice.shared.orientation = .portrait
-        let app = XCUIApplication()
+        app = XCUIApplication()
         app.launchArguments.append("--uitesting")
         app.launch()
     }
     
     func testCellClickOpensDetailsPage() {
-        let app = XCUIApplication()
-        app.collectionViews.cells.otherElements.firstMatch.tap()
+        firstVisibleCell.tap()
         XCTAssertTrue(app.otherElements["detailsView"].exists)
     }
     
     func testNavigationBarAppearsOnDetailsPageAfterScrollingDownAndUp() {
-        let app = XCUIApplication()
-        app.collectionViews.cells.otherElements.firstMatch.tap()
+        firstVisibleCell.tap()
         let scrollView = app/*@START_MENU_TOKEN@*/.scrollViews/*[[".otherElements[\"detailsView\"].scrollViews",".scrollViews"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.children(matching: .other).element
         scrollView.swipeUp()
         scrollView.swipeDown()
@@ -34,43 +34,37 @@ class CodeChallengeUITests: XCTestCase {
     }
     
     func testNavigationBarDisappearsComingBackFromDetailsPageIfPreviouslyHidden() {
-        let app = XCUIApplication()
-        let collectionViewCell = app.collectionViews.cells.otherElements.firstMatch
-        collectionViewCell.swipeUp()
+        firstVisibleCell.swipeUp()
         XCTAssertFalse(app.navigationBars.firstMatch.exists,
                        "The navigation bar should auto hide on swipe")
         
         // Details page:
-        collectionViewCell.swipeDown()
-        collectionViewCell.tap()
+        firstVisibleCell.swipeDown()
+        firstVisibleCell.tap()
         app.navigationBars.firstMatch.buttons["Back"].firstMatch.tap()
         
         // List page:
-        let collectionViewCell2 = app.collectionViews.cells.otherElements.firstMatch
-        collectionViewCell2.swipeUp()
+        firstVisibleCell.swipeUp()
         XCTAssertFalse(app.navigationBars.firstMatch.exists,
                        "The navigation bar should auto hide again on swipe")
     }
     
     func testScrollToBottomLoadsMoreItems() {
-        let app = XCUIApplication()
         let previousCellsCount = app.collectionViews.cells.count
         
-        app.collectionViews.cells.otherElements.firstMatch.swipeUp()
+        firstVisibleCell.swipeUp()
         XCTAssertGreaterThan(app.collectionViews.cells.count, previousCellsCount)
     }
     
     func testDeviceRotationRecalculatesCellSizes() {
-        let app = XCUIApplication()
-        let cellWidthOnPortrait = app.collectionViews.cells.otherElements.firstMatch.frame.size.width
+        let cellWidthOnPortrait = firstVisibleCell.frame.size.width
         
         XCUIDevice.shared.orientation = .landscapeRight
-        XCTAssertGreaterThan(app.collectionViews.cells.otherElements.firstMatch.frame.size.width, cellWidthOnPortrait)
+        XCTAssertGreaterThan(firstVisibleCell.frame.size.width, cellWidthOnPortrait)
     }
     
     func testNonEmptySearchReplacesResults() {
-        let app = XCUIApplication()
-        let firstCell = app.collectionViews.cells.otherElements.firstMatch
+        let firstCell = firstVisibleCell
         let firstCellTitleWhenNotSearching = firstCell.staticTexts.firstMatch.label
         
         firstCell.swipeDown()
@@ -79,13 +73,17 @@ class CodeChallengeUITests: XCTestCase {
         searchField.typeText("some text")
         
         let differs = NSPredicate(format: "staticTexts.firstMatch.label != %@", firstCellTitleWhenNotSearching)
-        expectation(for: differs, evaluatedWith: app.collectionViews.cells.otherElements.firstMatch, handler: nil)
+        expectation(for: differs, evaluatedWith: firstVisibleCell, handler: nil)
         waitForExpectations(timeout: 2.0)
         
         searchField.buttons["Clear text"].tap()
         
         let equals = NSPredicate(format: "staticTexts.firstMatch.label == %@", firstCellTitleWhenNotSearching)
-        expectation(for: equals, evaluatedWith: app.collectionViews.cells.otherElements.firstMatch, handler: nil)
+        expectation(for: equals, evaluatedWith: firstVisibleCell, handler: nil)
         waitForExpectations(timeout: 2.0)
+    }
+    
+    private var firstVisibleCell: XCUIElement {
+        return app.collectionViews.cells.otherElements.firstMatch
     }
 }
