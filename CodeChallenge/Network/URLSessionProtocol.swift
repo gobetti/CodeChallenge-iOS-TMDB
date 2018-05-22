@@ -5,10 +5,11 @@
 //  Created by Marcelo Gobetti on 4/23/18.
 //
 
-import Foundation
+import RxCocoa
+import RxSwift
 
-protocol URLSessionProtocol {
-    func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask
+protocol ReactiveURLSessionProtocol {
+    func data(request: URLRequest) -> Observable<Data>
 }
 
-extension URLSession: URLSessionProtocol {}
+extension Reactive: ReactiveURLSessionProtocol where Base: URLSession {}

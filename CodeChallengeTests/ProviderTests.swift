@@ -27,7 +27,7 @@ class ProviderTests: XCTestCase {
     
     func testValidURLRequestSucceeds() {
         let events = self.simulatedEvents().map {
-            $0.map { $0.data }
+            $0.map { $0 }
         }
         let expected = [
             next(self.initialTime, MockTarget.validURL.sampleData),
@@ -46,7 +46,7 @@ class ProviderTests: XCTestCase {
         let responseDelay = TimeInterval(integerResponseDelay)
         
         let events = self.simulatedEvents(stubBehavior: .delayed(time: responseDelay, stub: .default)).map {
-            $0.map { $0.data }
+            $0.map { $0 }
         }
         
         let expected = [
@@ -64,9 +64,9 @@ class ProviderTests: XCTestCase {
     
     private func simulatedEvents(stubBehavior: StubBehavior = .immediate(stub: .default),
                                  target: MockTarget = MockTarget.validURL)
-        -> [Recorded<Event<Response>>] {
+        -> [Recorded<Event<Data>>] {
             let provider = Provider<MockTarget>(stubBehavior: stubBehavior, scheduler: self.scheduler)
-            let results = scheduler.createObserver(Response.self)
+            let results = scheduler.createObserver(Data.self)
             
             scheduler.scheduleAt(self.initialTime) {
                 provider.request(target).asObservable()
@@ -75,45 +75,6 @@ class ProviderTests: XCTestCase {
             scheduler.start()
             
             return results.events
-    }
-    
-    // MARK: - MockURLSessionDataTask
-    func testImmediateStubDoesNotRespondIfNeverResumed() {
-        let responseExpectation = expectation(description: "❌ responded")
-        responseExpectation.isInverted = true // should not respond
-        
-        let completion: MockURLSessionDataTask.Completion = { _ in
-            responseExpectation.fulfill()
-        }
-        
-        _ = MockURLSessionDataTask(completion: completion, scheduler: MainScheduler.instance, delay: 0)
-        
-        wait(for: [responseExpectation], timeout: 1.0)
-    }
-    
-    func testDelayedStubErrorsOutIfCancelledBeforeDelay() {
-        let responseDelay: TimeInterval = 1.0
-        
-        let errorExpectation = expectation(description: "✅ response returned error")
-        let noErrorExpectation = expectation(description: "❌ response returned no error")
-        noErrorExpectation.isInverted = true // should not respond without an error
-        
-        let completion: MockURLSessionDataTask.Completion = { error in
-            if error != nil {
-                errorExpectation.fulfill()
-            } else {
-                noErrorExpectation.fulfill()
-            }
-        }
-        
-        let scheduler = MainScheduler.instance
-        let task = MockURLSessionDataTask(completion: completion, scheduler: scheduler, delay: responseDelay)
-        task.resume()
-        _ = Observable<Int>.timer(responseDelay / 2, scheduler: scheduler).take(1).subscribe(onNext: { _ in
-            task.cancel()
-        })
-        
-        wait(for: [errorExpectation, noErrorExpectation], timeout: responseDelay)
     }
     
     // MARK: - Memory

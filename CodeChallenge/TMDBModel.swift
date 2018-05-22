@@ -42,12 +42,12 @@ struct TMDBModel {
         return self.requestMovies(.upcomingMovies(page: page))
     }
     
-    // Maps into [Movie] the "results" part of the JSON returned by the API
+    // MARK: - Private
     private func requestMovies(_ type: TMDB) -> Single<TMDBResults> {
         return self.moviesProvider
             .request(type)
-            .map { response -> TMDBResults in
-                return try TMDBResults.decoder.decode(TMDBResults.self, from: response.data)
+            .map { data -> TMDBResults in
+                return try TMDBResults.decoder.decode(TMDBResults.self, from: data)
             }
     }
 }

@@ -140,6 +140,6 @@ class TMDBModelTests: XCTestCase {
     }
     
     private func customSuccessStub(stubbedResponse: String) -> Stub {
-        return Stub.success(Response(200, stubbedResponse.data(using: .utf8)!))
+        return Stub.success(stubbedResponse.data(using: .utf8)!)
     }
 }
