@@ -21,12 +21,12 @@ class CodeChallengeUITests: XCTestCase {
     }
     
     func testCellClickOpensDetailsPage() {
-        firstVisibleCell.tap()
+        anyCell.tap()
         XCTAssertTrue(app.otherElements["detailsView"].exists)
     }
     
     func testNavigationBarAppearsOnDetailsPageAfterScrollingDownAndUp() {
-        firstVisibleCell.tap()
+        anyCell.tap()
         let scrollView = app/*@START_MENU_TOKEN@*/.scrollViews/*[[".otherElements[\"detailsView\"].scrollViews",".scrollViews"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.children(matching: .other).element
         scrollView.swipeUp()
         scrollView.swipeDown()
@@ -34,17 +34,17 @@ class CodeChallengeUITests: XCTestCase {
     }
     
     func testNavigationBarDisappearsComingBackFromDetailsPageIfPreviouslyHidden() {
-        firstVisibleCell.swipeUp()
+        anyCell.swipeUp()
         XCTAssertFalse(app.navigationBars.firstMatch.exists,
                        "The navigation bar should auto hide on swipe")
         
         // Details page:
-        firstVisibleCell.swipeDown()
-        firstVisibleCell.tap()
+        anyCell.swipeDown()
+        anyCell.tap()
         app.navigationBars.firstMatch.buttons["Back"].firstMatch.tap()
         
         // List page:
-        firstVisibleCell.swipeUp()
+        anyCell.swipeUp()
         XCTAssertFalse(app.navigationBars.firstMatch.exists,
                        "The navigation bar should auto hide again on swipe")
     }
@@ -52,38 +52,39 @@ class CodeChallengeUITests: XCTestCase {
     func testScrollToBottomLoadsMoreItems() {
         let previousCellsCount = app.collectionViews.cells.count
         
-        firstVisibleCell.swipeUp()
+        anyCell.swipeUp()
         XCTAssertGreaterThan(app.collectionViews.cells.count, previousCellsCount)
     }
     
     func testDeviceRotationRecalculatesCellSizes() {
-        let cellWidthOnPortrait = firstVisibleCell.frame.size.width
+        let cellWidthOnPortrait = anyCell.frame.size.width
         
         XCUIDevice.shared.orientation = .landscapeRight
-        XCTAssertGreaterThan(firstVisibleCell.frame.size.width, cellWidthOnPortrait)
+        XCTAssertGreaterThan(anyCell.frame.size.width, cellWidthOnPortrait)
     }
     
     func testNonEmptySearchReplacesResults() {
-        let firstCell = firstVisibleCell
-        let firstCellTitleWhenNotSearching = firstCell.staticTexts.firstMatch.label
+        let anyCellTitleWhenNotSearching = anyCell.staticTexts.firstMatch.label
         
-        firstCell.swipeDown()
+        anyCell.swipeDown()
         let searchField = app.searchFields.firstMatch
         searchField.tap()
         searchField.typeText("some text")
         
-        let differs = NSPredicate(format: "staticTexts.firstMatch.label != %@", firstCellTitleWhenNotSearching)
-        expectation(for: differs, evaluatedWith: firstVisibleCell, handler: nil)
+        // That cell should not exist anymore:
+        let differs = NSPredicate(format: "staticTexts.firstMatch.label != %@", anyCellTitleWhenNotSearching)
+        expectation(for: differs, evaluatedWith: app.collectionViews.cells, handler: nil)
         waitForExpectations(timeout: 2.0)
         
         searchField.buttons["Clear text"].tap()
         
-        let equals = NSPredicate(format: "staticTexts.firstMatch.label == %@", firstCellTitleWhenNotSearching)
-        expectation(for: equals, evaluatedWith: firstVisibleCell, handler: nil)
+        // That cell should exist back again:
+        let equals = NSPredicate(format: "staticTexts.firstMatch.label == %@", anyCellTitleWhenNotSearching)
+        expectation(for: equals, evaluatedWith: app.collectionViews.cells, handler: nil)
         waitForExpectations(timeout: 2.0)
     }
     
-    private var firstVisibleCell: XCUIElement {
+    private var anyCell: XCUIElement {
         return app.collectionViews.cells.otherElements.firstMatch
     }
 }
