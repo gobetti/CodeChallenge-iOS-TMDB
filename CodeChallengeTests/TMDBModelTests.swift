@@ -7,6 +7,7 @@
 
 import XCTest
 @testable import CodeChallenge
+import RxCocoaNetworking
 import RxSwift
 import RxTest
 

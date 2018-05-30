@@ -11,6 +11,10 @@ import RxCocoa
 import RxSwift
 import RxTest
 
+enum TestError: Error {
+    case someError
+}
+
 class ObservableExtensionsTests: XCTestCase {
     var disposeBag: DisposeBag!
     var scheduler: TestScheduler!

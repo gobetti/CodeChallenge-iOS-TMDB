@@ -5,6 +5,7 @@
 //  Created by Marcelo Gobetti on 10/31/16.
 //
 
+import RxCocoaNetworking
 import RxSwift
 
 enum TMDBModelError: Error {

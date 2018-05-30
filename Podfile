@@ -3,7 +3,7 @@ platform :ios, '9.0'
 use_frameworks!
 
 def shared_pods
-    pod 'RxCocoa',                  '~> 4.0'
+    pod 'RxCocoaNetworking'
 end
 
 target 'CodeChallenge' do
