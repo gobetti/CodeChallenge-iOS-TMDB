@@ -383,18 +383,19 @@
 					3AA371D62067EB7400FBB61C = {
 						CreatedOnToolsVersion = 9.2;
 						DevelopmentTeam = 5HMJW6N276;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 3ACB49EB1DC2298D00C873DB;
 					};
 					3ACB49EB1DC2298D00C873DB = {
 						CreatedOnToolsVersion = 8.1;
-						LastSwiftMigration = 0920;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Manual;
 					};
 					3AE873D820896F72007C9688 = {
 						CreatedOnToolsVersion = 9.3;
 						DevelopmentTeam = 5HMJW6N276;
+						LastSwiftMigration = 1000;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 3ACB49EB1DC2298D00C873DB;
 					};
@@ -482,7 +483,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallengeTests/Pods-CodeChallengeTests-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-CodeChallengeTests/Pods-CodeChallengeTests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoaNetworking/RxCocoaNetworking.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
@@ -497,7 +498,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallengeTests/Pods-CodeChallengeTests-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CodeChallengeTests/Pods-CodeChallengeTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		43E20A466A19F61C262F1FED /* [CP] Embed Pods Frameworks */ = {
@@ -506,7 +507,7 @@
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallenge/Pods-CodeChallenge-frameworks.sh",
+				"${PODS_ROOT}/Target Support Files/Pods-CodeChallenge/Pods-CodeChallenge-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoaNetworking/RxCocoaNetworking.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
@@ -519,7 +520,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-CodeChallenge/Pods-CodeChallenge-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CodeChallenge/Pods-CodeChallenge-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		71EFBB2F5D08BDE5FA264344 /* [CP] Check Pods Manifest.lock */ = {
@@ -653,8 +654,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.xyz.CodeChallengeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CodeChallenge.app/CodeChallenge";
 			};
@@ -684,8 +684,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.xyz.CodeChallengeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CodeChallenge.app/CodeChallenge";
 			};
@@ -815,8 +814,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.xyz.CodeChallenge;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -832,8 +830,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.xyz.CodeChallenge;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
@@ -853,7 +850,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.xyz.CodeChallengeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = CodeChallenge;
 			};
@@ -875,7 +872,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.xyz.CodeChallengeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = CodeChallenge;
 			};
