@@ -23,7 +23,7 @@ final class MoviesListViewController: UIViewController {
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
                                                   collectionViewLayout: MoviesListFlowLayout())
-    private let loadingView = UIActivityIndicatorView(activityIndicatorStyle: .gray)
+    private let loadingView = UIActivityIndicatorView(style: .gray)
     private let searchController = UISearchController(searchResultsController: nil)
     private let stackView = UIStackView(frame: CGRect.zero)
     

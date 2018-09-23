@@ -1,13 +1,13 @@
 PODS:
-  - RxCocoa (4.1.2):
+  - RxCocoa (4.3.1):
     - RxSwift (~> 4.0)
-  - RxCocoaNetworking (0.2.0):
-    - RxCocoa (~> 4.0)
-    - RxCocoaNetworking/Core (= 0.2.0)
-  - RxCocoaNetworking/Core (0.2.0):
-    - RxCocoa (~> 4.0)
-  - RxSwift (4.1.2)
-  - RxTest (4.1.2):
+  - RxCocoaNetworking (0.2.1):
+    - RxCocoa (~> 4.3)
+    - RxCocoaNetworking/Core (= 0.2.1)
+  - RxCocoaNetworking/Core (0.2.1):
+    - RxCocoa (~> 4.3)
+  - RxSwift (4.3.1)
+  - RxTest (4.3.1):
     - RxSwift (~> 4.0)
 
 DEPENDENCIES:
@@ -22,10 +22,10 @@ SPEC REPOS:
     - RxTest
 
 SPEC CHECKSUMS:
-  RxCocoa: d88ba0f1f6abf040011a9eb4b539324fc426843a
-  RxCocoaNetworking: d845b8633478e763ce338b1dceac65628d71f4f2
-  RxSwift: e49536837d9901277638493ea537394d4b55f570
-  RxTest: e634f15fd2c2cd0e0120132ef7a4f7be69ad0393
+  RxCocoa: 78763c7b07d02455598d9fc3c1ad091a28b73635
+  RxCocoaNetworking: 5bb29729a67a45efee22f7fe9dfdb12e60a33655
+  RxSwift: fe0fd770a43acdb7d0a53da411c9b892e69bb6e4
+  RxTest: ea97a208826906f3904c0debdd09575ebcbfe216
 
 PODFILE CHECKSUM: adae9c86cad6eb324a5406e84397ecee1f1b8920
 
