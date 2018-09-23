@@ -155,7 +155,7 @@ class TMDBModelTests: XCTestCase {
     }
     
     private func simulatedEvents(page: Int = 1,
-                                 stubBehavior: StubBehavior = .immediate(stub: .default))
+                                 stubBehavior: StubBehavior<TMDB.TargetStub> = .immediate(stub: .default))
         -> [Recorded<Event<TMDBResults>>] {
             let tmdbModel = TMDBModel(stubBehavior: stubBehavior, scheduler: scheduler)
             let results = scheduler.createObserver(TMDBResults.self)

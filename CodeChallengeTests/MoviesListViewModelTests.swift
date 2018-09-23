@@ -181,7 +181,7 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertEqual(results.events, expected)
     }
     
-    private func makeTMDBModel(stubBehavior: StubBehavior = .immediate(stub: .default)) -> TMDBModel {
+    private func makeTMDBModel(stubBehavior: StubBehavior<TMDB.TargetStub> = .immediate(stub: .default)) -> TMDBModel {
         return TMDBModel(stubBehavior: stubBehavior, scheduler: self.scheduler)
     }
     

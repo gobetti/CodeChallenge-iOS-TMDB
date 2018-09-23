@@ -20,7 +20,7 @@ struct TMDBModel {
     private let moviesProvider: MoviesProvider
     private let genresStore: GenresStoreProtocol
     
-    init(stubBehavior: StubBehavior = .never,
+    init(stubBehavior: StubBehavior<TMDB.TargetStub> = .never,
          scheduler: SchedulerType = ConcurrentDispatchQueueScheduler(qos: .background),
          genresStore: GenresStoreProtocol = GenresStore.shared) {
         self.imageProvider = ImageProvider(stubBehavior: stubBehavior, scheduler: scheduler)
@@ -102,10 +102,6 @@ extension TMDB: TargetType {
         }
     }
     
-    public var method: HTTPMethod {
-        return .get
-    }
-    
     public var sampleData: Data {
         func jsonData(fromFile fileName: String) -> Data {
             return try! Data(contentsOf: Bundle.main.url(forResource: fileName, withExtension: "json")!)
@@ -125,7 +121,7 @@ extension TMDB: TargetType {
     }
     
     public var task: Task {
-        return .requestParameters(parameters: self.parameters)
+        return Task(parameters: self.parameters)
     }
     
     public var headers: [String : String]? {
@@ -162,14 +158,6 @@ extension TMDBImage: TargetType {
         }
     }
     
-    public var method: HTTPMethod {
-        return .get
-    }
-    
-    public var parameters: [String: Any]? {
-        return nil
-    }
-    
     public var sampleData: Data {
         switch self {
         case .movie:
@@ -178,7 +166,7 @@ extension TMDBImage: TargetType {
     }
     
     public var task: Task {
-        return .requestPlain
+        return Task()
     }
     
     public var headers: [String : String]? {
