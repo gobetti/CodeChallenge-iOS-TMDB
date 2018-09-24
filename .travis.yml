@@ -6,7 +6,7 @@ before_install:
   - git submodule update --init --recursive
 
 script:
-  - xcodebuild -scheme CodeChallenge -workspace CodeChallenge.xcworkspace -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=11.3' -destination 'platform=iOS Simulator,name=iPad Air 2,OS=10.3.1' build test
+  - set -o pipefail && xcodebuild -scheme CodeChallenge -workspace CodeChallenge.xcworkspace -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=11.3' -destination 'platform=iOS Simulator,name=iPad Air 2,OS=10.3.1' build test | bundle exec xcpretty
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
