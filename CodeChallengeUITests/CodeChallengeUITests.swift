@@ -27,32 +27,34 @@ class CodeChallengeUITests: XCTestCase {
     
     func testNavigationBarAppearsOnDetailsPageAfterScrollingDownAndUp() {
         anyCell.tap()
-        let scrollView = app/*@START_MENU_TOKEN@*/.scrollViews/*[[".otherElements[\"detailsView\"].scrollViews",".scrollViews"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.children(matching: .other).element
-        scrollView.swipeUp()
-        scrollView.swipeDown()
+        anyScrollView.swipeUp()
+        anyScrollView.swipeDown()
         XCTAssertTrue(app.navigationBars.firstMatch.buttons["Back"].exists)
     }
     
     func testNavigationBarDisappearsComingBackFromDetailsPageIfPreviouslyHidden() {
-        anyCell.swipeUp()
+        anyScrollView.swipeUp()
         XCTAssertFalse(app.navigationBars.firstMatch.exists,
-                       "The navigation bar should auto hide on swipe")
-        
+                       "The navigation bar should auto hide when scrolling down")
+
+        anyScrollView.swipeDown()
+        XCTAssertTrue(app.navigationBars.firstMatch.exists,
+                      "The navigation bar should re-appear when scrolling up")
+
         // Details page:
-        anyCell.swipeDown()
         anyCell.tap()
         app.navigationBars.firstMatch.buttons["Back"].firstMatch.tap()
         
         // List page:
-        anyCell.swipeUp()
+        anyScrollView.swipeUp()
         XCTAssertFalse(app.navigationBars.firstMatch.exists,
-                       "The navigation bar should auto hide again on swipe")
+                       "The navigation bar should auto hide again when scrolling down")
     }
     
     func testScrollToBottomLoadsMoreItems() {
         let previousCellsCount = app.collectionViews.cells.count
         
-        anyCell.swipeUp()
+        anyScrollView.swipeUp()
         XCTAssertGreaterThan(app.collectionViews.cells.count, previousCellsCount)
     }
     
@@ -66,7 +68,7 @@ class CodeChallengeUITests: XCTestCase {
     func testNonEmptySearchReplacesResults() {
         let anyCellTitleWhenNotSearching = anyCell.staticTexts.firstMatch.label
         
-        anyCell.swipeDown()
+        anyScrollView.swipeDown()
         let searchField = app.searchFields.firstMatch
         searchField.tap()
         searchField.typeText("some text")
@@ -86,5 +88,9 @@ class CodeChallengeUITests: XCTestCase {
     
     private var anyCell: XCUIElement {
         return app.collectionViews.cells.otherElements.firstMatch
+    }
+
+    private var anyScrollView: XCUIElement {
+        return app.scrollViews.firstMatch.exists ? app.scrollViews.firstMatch : app.collectionViews.firstMatch
     }
 }
