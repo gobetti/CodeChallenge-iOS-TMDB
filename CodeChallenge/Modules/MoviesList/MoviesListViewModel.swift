@@ -20,10 +20,6 @@ struct MoviesListViewModel {
     private let scheduler: SchedulerType
     private let tmdbModel: TMDBModel
     
-    func image(width: Int, from movie: Movie) -> Single<UIImage> {
-        return self.tmdbModel.image(width: width, from: movie)
-    }
-    
     // MARK: - Initializers
     init(tmdbModel: TMDBModel = TMDBModel(),
          uiTesting: Bool = false,
@@ -37,9 +33,8 @@ struct MoviesListViewModel {
         }
     }
     
-    private static func createRequest(query: String, page: Int, tmdbModel: TMDBModel) -> Single<TMDBResults> {
-        guard !query.isEmpty else { return tmdbModel.upcomingMovies(page: page) }
-        return tmdbModel.search(query: query, page: page)
+    func image(width: Int, from movie: Movie) -> Single<UIImage> {
+        return self.tmdbModel.image(width: width, from: movie)
     }
     
     func movies(pageRequester: Observable<Void>,
@@ -56,7 +51,7 @@ struct MoviesListViewModel {
             return pageRequester.startWith(())
                 .do(onNext: { isLoading.accept(true) })
                 .flatMapFirst { _ in
-                    MoviesListViewModel.createRequest(query: query, page: nextPage, tmdbModel: self.tmdbModel)
+                    self.createRequest(query: query, page: nextPage)
                         .do(onSuccess: { _ in fetchedPages += 1 })
                         .catchError {
                             print("Error: \($0)")
@@ -79,5 +74,12 @@ struct MoviesListViewModel {
         let isLoadingDriver = isLoading.asDriver().distinctUntilChanged()
         
         return MoviesList(movies: moviesDriver, isLoading: isLoadingDriver)
+    }
+    
+    // MARK: - Private
+    
+    private func createRequest(query: String, page: Int) -> Single<TMDBResults> {
+        guard !query.isEmpty else { return tmdbModel.upcomingMovies(page: page) }
+        return self.tmdbModel.search(query: query, page: page)
     }
 }
