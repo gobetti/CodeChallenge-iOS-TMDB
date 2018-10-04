@@ -8,56 +8,43 @@
 import RxCocoa
 import RxSwift
 
+typealias MoviesCollection = [Movie]
+
+struct MoviesList {
+    let movies: Driver<MoviesCollection>
+    let isLoading: Driver<Bool>
+}
+
 struct MoviesListViewModel {
-    typealias MoviesCollection = [Movie]
-    
     private let disposeBag = DisposeBag()
+    private let scheduler: SchedulerType
     private let tmdbModel: TMDBModel
-    
-    // MARK: - Public
-    let isLoadingDriver: Driver<Bool>
-    let moviesDriver: Driver<MoviesCollection>
     
     func image(width: Int, from movie: Movie) -> Single<UIImage> {
         return self.tmdbModel.image(width: width, from: movie)
     }
     
     // MARK: - Initializers
-    init(pageRequester: Observable<Void>,
-         searchRequester: Observable<String>,
-         tmdbModel: TMDBModel,
-         debounceTime: RxTimeInterval = 0.5,
+    init(tmdbModel: TMDBModel = TMDBModel(),
+         uiTesting: Bool = false,
          scheduler: SchedulerType = MainScheduler.instance) {
-        (self.moviesDriver, self.isLoadingDriver) = MoviesListViewModel.createDrivers(pageRequester: pageRequester,
-                                                                                      searchRequester: searchRequester,
-                                                                                      debounceTime: debounceTime,
-                                                                                      scheduler: scheduler,
-                                                                                      tmdbModel: tmdbModel)
-        self.tmdbModel = tmdbModel
-    }
-    
-    init(pageRequester: Observable<Void>, searchRequester: Observable<String>, uiTesting: Bool = false) {
-        let tmdbModel: TMDBModel
-        if uiTesting {
-            tmdbModel = TMDBModel(stubBehavior: .immediate(stub: .default), scheduler: MainScheduler.instance)
-        } else {
-            tmdbModel = TMDBModel()
-        }
+        self.scheduler = scheduler
         
-        self.init(pageRequester: pageRequester, searchRequester: searchRequester, tmdbModel: tmdbModel)
+        if uiTesting {
+            self.tmdbModel = TMDBModel(stubBehavior: .immediate(stub: .default), scheduler: MainScheduler.instance)
+        } else {
+            self.tmdbModel = tmdbModel
+        }
     }
     
-    // MARK: - Private static methods
     private static func createRequest(query: String, page: Int, tmdbModel: TMDBModel) -> Single<TMDBResults> {
         guard !query.isEmpty else { return tmdbModel.upcomingMovies(page: page) }
         return tmdbModel.search(query: query, page: page)
     }
     
-    private static func createDrivers(pageRequester: Observable<Void>,
-                                      searchRequester: Observable<String>,
-                                      debounceTime: RxTimeInterval,
-                                      scheduler: SchedulerType,
-                                      tmdbModel: TMDBModel) -> (Driver<MoviesCollection>, Driver<Bool>) {
+    func movies(pageRequester: Observable<Void>,
+                searchRequester: Observable<String>,
+                debounceTime: RxTimeInterval = 0.5) -> MoviesList {
         let isLoading = BehaviorRelay(value: false)
         
         let paginator = { (query: String) -> Observable<MoviesCollection> in
@@ -69,7 +56,7 @@ struct MoviesListViewModel {
             return pageRequester.startWith(())
                 .do(onNext: { isLoading.accept(true) })
                 .flatMapFirst { _ in
-                    MoviesListViewModel.createRequest(query: query, page: nextPage, tmdbModel: tmdbModel)
+                    MoviesListViewModel.createRequest(query: query, page: nextPage, tmdbModel: self.tmdbModel)
                         .do(onSuccess: { _ in fetchedPages += 1 })
                         .catchError {
                             print("Error: \($0)")
@@ -91,6 +78,6 @@ struct MoviesListViewModel {
         
         let isLoadingDriver = isLoading.asDriver().distinctUntilChanged()
         
-        return (moviesDriver, isLoadingDriver)
+        return MoviesList(movies: moviesDriver, isLoading: isLoadingDriver)
     }
 }

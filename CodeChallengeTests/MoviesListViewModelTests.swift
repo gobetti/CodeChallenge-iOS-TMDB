@@ -156,20 +156,21 @@ class MoviesListViewModelTests: XCTestCase {
         let searchRequester = Observable<String>.never()
         let debounceTime = 2
         
-        let viewModel = MoviesListViewModel(pageRequester: pageRequester,
-                                            searchRequester: searchRequester,
-                                            tmdbModel: tmdbModel,
-                                            debounceTime: RxTimeInterval(debounceTime),
+        let viewModel = MoviesListViewModel(tmdbModel: tmdbModel,
                                             scheduler: self.scheduler)
         
         let results = scheduler.createObserver(Bool.self)
         
         scheduler.scheduleAt(0) {
-            viewModel.isLoadingDriver
+            let output = viewModel.movies(pageRequester: pageRequester,
+                                          searchRequester: searchRequester,
+                                          debounceTime: RxTimeInterval(debounceTime))
+                
+                output.isLoading
                 .drive(results).disposed(by: self.disposeBag)
             
             // At least 1 subscriber is needed:
-            viewModel.moviesDriver.drive().disposed(by: self.disposeBag)
+            output.movies.drive().disposed(by: self.disposeBag)
         }
         scheduler.start()
         
@@ -190,16 +191,17 @@ class MoviesListViewModelTests: XCTestCase {
                                             debounceTime: Int,
                                             tmdbModel: TMDBModel)
         -> [Recorded<Event<Int>>] {
-            let viewModel = MoviesListViewModel(pageRequester: pageRequester,
-                                                searchRequester: searchRequester,
-                                                tmdbModel: tmdbModel,
-                                                debounceTime: RxTimeInterval(debounceTime),
+            let viewModel = MoviesListViewModel(tmdbModel: tmdbModel,
                                                 scheduler: self.scheduler)
             
             let results = scheduler.createObserver(Int.self)
             
             scheduler.scheduleAt(0) {
-                viewModel.moviesDriver.map { $0.count }
+                viewModel.movies(pageRequester: pageRequester,
+                                 searchRequester: searchRequester,
+                                 debounceTime: RxTimeInterval(debounceTime))
+                    .movies
+                    .map { $0.count }
                     .drive(results).disposed(by: self.disposeBag)
             }
             scheduler.start()

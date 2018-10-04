@@ -18,7 +18,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
             // Running tests, prevent UI from loading and concurring
             window?.rootViewController = UIViewController()
         } else {
-            let viewController = MoviesListViewController(uiTesting: CommandLine.arguments.contains("--uitesting"))
+            let viewModel = MoviesListViewModel(uiTesting: CommandLine.arguments.contains("--uitesting"))
+            let viewController = MoviesListViewController(viewModel: viewModel)
             window?.rootViewController = UINavigationController(rootViewController: viewController)
         }
         window?.makeKeyAndVisible()

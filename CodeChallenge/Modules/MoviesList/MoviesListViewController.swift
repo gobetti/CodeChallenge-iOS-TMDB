@@ -15,10 +15,7 @@ private enum MoviesListViewConstants {
 
 final class MoviesListViewController: UIViewController {
     private let disposeBag = DisposeBag()
-    private let uiTesting: Bool
-    private lazy var viewModel = MoviesListViewModel(pageRequester: self.pageRequester,
-                                                     searchRequester: self.searchRequester,
-                                                     uiTesting: self.uiTesting)
+    private let viewModel: MoviesListViewModel
     
     // MARK: - UI Elements
     private let collectionView = UICollectionView(frame: CGRect.zero,
@@ -27,9 +24,13 @@ final class MoviesListViewController: UIViewController {
     private let searchController = UISearchController(searchResultsController: nil)
     private let stackView = UIStackView(frame: CGRect.zero)
     
+    // MARK: - Data source
+    private lazy var moviesList = self.viewModel.movies(pageRequester: self.pageRequester,
+                                                        searchRequester: self.searchRequester)
+    
     // MARK: - Initializers
-    init(uiTesting: Bool = false) {
-        self.uiTesting = uiTesting
+    init(viewModel: MoviesListViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -74,7 +75,7 @@ final class MoviesListViewController: UIViewController {
         // Movies
         self.collectionView.backgroundColor = .clear
         self.collectionView.register(cellType: MoviesListCell.self)
-        self.viewModel.moviesDriver
+        self.moviesList.movies
             .drive(self.collectionView.rx.items(cellType: MoviesListCell.self)) { (_, movie, cell) in
                 cell.titleLabel.text = movie.originalTitle
                 cell.releaseDateLabel.text = DateFormatter.localizedString(from: movie.releaseDate,
@@ -85,7 +86,7 @@ final class MoviesListViewController: UIViewController {
         
         // Loading
         self.loadingView.heightAnchor.constraint(equalToConstant: MoviesListViewConstants.cellHeight).isActive = true
-        self.viewModel.isLoadingDriver
+        self.moviesList.isLoading
             .drive(onNext: { [unowned self] isLoading in
                 // TODO: RxAnimated
                 UIView.animate(withDuration: 0.3, animations: {
